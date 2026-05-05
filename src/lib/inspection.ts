@@ -745,26 +745,33 @@ async function syncNotionImprovementTaskById(admin: ReturnType<typeof createAdmi
     return;
   }
 
-  const result = await upsertNotionImprovementTask({
-    notionPageId: (row.notion_page_id as string | null | undefined) ?? null,
-    task: buildNotionImprovementTaskSyncInput({
-      status: row.status as ImprovementStatus,
-      storeName: store.name,
-      itemName: item.name,
-      scoreValue: score.score,
-      scoreNote: score.note ?? null,
-      inspectionDate: inspection.date,
-    }),
-  });
+  try {
+    const result = await upsertNotionImprovementTask({
+      notionPageId: (row.notion_page_id as string | null | undefined) ?? null,
+      task: buildNotionImprovementTaskSyncInput({
+        status: row.status as ImprovementStatus,
+        storeName: store.name,
+        itemName: item.name,
+        scoreValue: score.score,
+        scoreNote: score.note ?? null,
+        inspectionDate: inspection.date,
+      }),
+    });
 
-  if (result.status === "synced") {
-    const { error: updateError } = await admin
-      .from("improvement_tasks")
-      .update({ notion_page_id: result.pageId, notion_synced_at: new Date().toISOString() })
-      .eq("id", taskId);
-    if (updateError) {
-      throw new Error(updateError.message);
+    if (result.status === "synced") {
+      const { error: updateError } = await admin
+        .from("improvement_tasks")
+        .update({ notion_page_id: result.pageId, notion_synced_at: new Date().toISOString() })
+        .eq("id", taskId);
+      if (updateError) {
+        console.error("[notion-sync] failed to persist notion page id", { taskId, error: updateError.message });
+      }
     }
+  } catch (error) {
+    console.error("[notion-sync] improvement task sync failed", {
+      taskId,
+      error: error instanceof Error ? error.message : String(error),
+    });
   }
 }
 
