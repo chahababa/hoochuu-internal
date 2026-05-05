@@ -2,6 +2,25 @@
 
 ## 2026-05-05 Latest
 
+### 統一巡店題目中的店別命名
+
+- `chore: normalize legacy place names in inspection items`
+  - 過往種子資料把巡店題目命名為「台北站前店自助區備品完整」「桃園廣場店炸台備援工具齊全」等含舊地點名稱的字樣，與系統實際只用「1店～4店」的描述方式不一致。新增 migration 把以下 5 條題目改為一致的命名：
+    - `台北站前店自助區備品完整` → `1店自助區備品完整`
+    - `台北站前店尖峰支援安排到位` → `1店尖峰支援安排到位`
+    - `板橋車站店外送交接架整齊` → `2店外送交接架整齊`
+    - `桃園廣場店炸台備援工具齊全` → `3店炸台備援工具齊全`
+    - `中壢樞紐店晚班清潔交接完整` → `4店晚班清潔交接完整`
+  - 同步更新 `supabase/seed.sql`，未來新環境直接以新命名 seed。
+  - Migration 透過精確字串比對更新，可重複執行（已改名的 row 不會被誤改回去）。
+
+### 部署注意
+
+- 需要套用 Supabase migration：`20260505_000015_normalize_inspection_item_store_names.sql`。
+- 若你曾經在後台手動加過含類似舊地點名稱的題目（例如自行新增「桃園XX店…」），這次 migration 不會自動處理 — 部署後請到設定 → 題目管理頁面檢查 / 改名。
+
+---
+
 ### 改善追蹤：回報已改善時可附照片與說明
 
 - `feat: allow leaders to attach photos and notes when resolving improvement tasks`
