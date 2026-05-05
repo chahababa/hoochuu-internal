@@ -2,6 +2,27 @@
 
 ## 2026-05-05 Latest
 
+### 改善追蹤：回報已改善時可附照片與說明
+
+- `feat: allow leaders to attach photos and notes when resolving improvement tasks`
+  - 新增 Supabase 欄位 `improvement_tasks.resolution_note`、`improvement_tasks.resolution_photo_urls`，記錄店長回報已改善時提供的文字說明與照片連結（複用 `inspection-photos` storage bucket，路徑 `improvements/{taskId}/...`）。
+  - 「改善追蹤」頁面店長角色將「回報已改善」按鈕改為可展開的小表單：可多選照片（`<input type="file" multiple accept="image/*">`，手機會帶起相機/相簿選擇器）、可填說明文字、按下「送出已改善」一次提交。照片與說明皆為選填，符合「不是每個改善項目都適合拍照」的場景。
+  - 任務卡片在 `resolved` / `verified` 狀態時，新增「改善佐證」區塊顯示說明文字與照片縮圖，方便區經理 / 系統擁有者審核。
+  - 同一筆任務若被退回 pending、店長再次回報，新照片會 append 到既有清單，不會覆蓋原有佐證。
+
+### 部署注意
+
+- 需要套用 Supabase migration：`20260505_000014_improvement_task_resolution.sql`。
+- 8MB 是 Next.js Server Action 預設的 body 上限，店長一次上傳的所有照片總和需控制在 8MB 內，UI 已加上提示文字。
+
+### 驗證
+
+- `npx vitest run src/lib/improvement-workflow.test.ts src/lib/improvement-task-groups.test.ts`
+- `npx tsc --noEmit`
+- `npx next lint`
+
+---
+
 ### 修正店長回報已改善後出現整頁錯誤
 
 - `fix: tolerate notion sync failures when updating improvement tasks`

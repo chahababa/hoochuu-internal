@@ -10,6 +10,8 @@ function task(overrides: Partial<ImprovementTaskListItem> & Pick<ImprovementTask
     createdAt: overrides.createdAt ?? "2026-04-28T00:00:00.000Z",
     resolvedAt: overrides.resolvedAt ?? null,
     verifiedAt: overrides.verifiedAt ?? null,
+    resolutionNote: overrides.resolutionNote ?? null,
+    resolutionPhotoUrls: overrides.resolutionPhotoUrls ?? [],
     store: overrides.store ?? null,
     item: overrides.item ?? { id: `item-${overrides.id}`, name: `題目 ${overrides.id}` },
     score:

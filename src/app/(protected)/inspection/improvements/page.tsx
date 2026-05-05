@@ -1,8 +1,13 @@
+import Image from "next/image";
 import Link from "next/link";
 
 import { SectionCard } from "@/components/section-card";
 import { requireRole } from "@/lib/auth";
-import { getImprovementTasks, updateImprovementTaskStatus } from "@/lib/inspection";
+import {
+  getImprovementTasks,
+  updateImprovementTaskStatus,
+  type ImprovementResolutionPhotoInput,
+} from "@/lib/inspection";
 import { groupImprovementTasksByStore } from "@/lib/improvement-task-groups";
 import { getImprovementStatusLabel } from "@/lib/improvement-workflow";
 import { getInspectionTagLabel } from "@/lib/ui-labels";
@@ -30,9 +35,38 @@ export default async function ImprovementTasksPage() {
 
   async function updateStatusAction(formData: FormData) {
     "use server";
+    const status = String(formData.get("status")) as Status;
+
+    let resolutionNote: string | null | undefined;
+    let resolutionPhotos: ImprovementResolutionPhotoInput[] | undefined;
+
+    if (status === "resolved") {
+      const rawNote = formData.get("resolutionNote");
+      if (typeof rawNote === "string") {
+        resolutionNote = rawNote;
+      }
+
+      const fileEntries = formData.getAll("resolutionPhotos");
+      const validFiles = fileEntries.filter(
+        (entry): entry is File => entry instanceof File && entry.size > 0,
+      );
+
+      if (validFiles.length > 0) {
+        resolutionPhotos = await Promise.all(
+          validFiles.map(async (file) => ({
+            fileName: file.name,
+            contentType: file.type || "image/jpeg",
+            buffer: Buffer.from(await file.arrayBuffer()),
+          })),
+        );
+      }
+    }
+
     await updateImprovementTaskStatus({
       id: String(formData.get("id")),
-      status: String(formData.get("status")) as Status,
+      status,
+      resolutionNote,
+      resolutionPhotos,
     });
   }
 
@@ -88,8 +122,8 @@ export default async function ImprovementTasksPage() {
         eyebrow="Task List"
         description={
           canManageStatus
-            ? "你可依改善進度推進任務狀態，並從明細頁回看原始巡店內容。"
-            : "可查看本店待改善任務與原始巡店內容；完成改善後可回報已改善，等待主管確認。"
+            ? "你可依改善進度推進任務狀態，並從明細頁回看原始巡店內容。店長回報已改善時可附照片與說明，作為改善佐證。"
+            : "可查看本店待改善任務與原始巡店內容；完成改善後可附上照片與文字說明，回報已改善並等待主管確認。"
         }
       >
         <div className="grid gap-4">
@@ -115,98 +149,172 @@ export default async function ImprovementTasksPage() {
               </summary>
 
               <div className="grid gap-3 border-t-[3px] border-nb-ink p-3 md:p-4">
-                {group.tasks.map((task) => (
-                  <div key={task.id} data-testid={`improvement-task-${task.id}`} className="nb-row">
-                    <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-                      <div className="space-y-2">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <p className="font-nbSerif text-lg font-black text-nb-ink">{task.item?.name ?? "未命名題目"}</p>
-                          <span className={statusChipClass(task.status)}>{getImprovementStatusLabel(task.status)}</span>
-                          {task.score?.tagTypes.map((tagType) => (
-                            <span key={`${task.id}-${tagType}`} className={tagChipClass(tagType)}>
-                              {getInspectionTagLabel(tagType)}
-                            </span>
-                          ))}
-                          {task.score?.isFocusItem && task.score.tagTypes.length === 0 ? (
-                            <span className="nb-chip-yellow">重點追蹤</span>
+                {group.tasks.map((task) => {
+                  const showResolutionEvidence =
+                    (task.status === "resolved" || task.status === "verified") &&
+                    (Boolean(task.resolutionNote) || task.resolutionPhotoUrls.length > 0);
+
+                  return (
+                    <div key={task.id} data-testid={`improvement-task-${task.id}`} className="nb-row">
+                      <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                        <div className="space-y-2">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <p className="font-nbSerif text-lg font-black text-nb-ink">{task.item?.name ?? "未命名題目"}</p>
+                            <span className={statusChipClass(task.status)}>{getImprovementStatusLabel(task.status)}</span>
+                            {task.score?.tagTypes.map((tagType) => (
+                              <span key={`${task.id}-${tagType}`} className={tagChipClass(tagType)}>
+                                {getInspectionTagLabel(tagType)}
+                              </span>
+                            ))}
+                            {task.score?.isFocusItem && task.score.tagTypes.length === 0 ? (
+                              <span className="nb-chip-yellow">重點追蹤</span>
+                            ) : null}
+                          </div>
+                          <p className="text-sm text-nb-ink/70 font-bold font-nbMono">
+                            {task.score?.inspectionDate ?? "-"} · 分數 {task.score?.value ?? "-"}
+                          </p>
+                          {task.score?.note ? (
+                            <p className="text-sm leading-6 text-nb-ink/80 bg-nb-bg2 border-l-[3px] border-nb-ink px-3 py-2">
+                              {task.score.note}
+                            </p>
+                          ) : null}
+                          {task.score?.inspectionId ? (
+                            <Link href={`/inspection/history/${task.score.inspectionId}`} className="nb-btn-xs">
+                              查看巡店明細 →
+                            </Link>
                           ) : null}
                         </div>
-                        <p className="text-sm text-nb-ink/70 font-bold font-nbMono">
-                          {task.score?.inspectionDate ?? "-"} · 分數 {task.score?.value ?? "-"}
-                        </p>
-                        {task.score?.note ? (
-                          <p className="text-sm leading-6 text-nb-ink/80 bg-nb-bg2 border-l-[3px] border-nb-ink px-3 py-2">
-                            {task.score.note}
-                          </p>
-                        ) : null}
-                        {task.score?.inspectionId ? (
-                          <Link href={`/inspection/history/${task.score.inspectionId}`} className="nb-btn-xs">
-                            查看巡店明細 →
-                          </Link>
-                        ) : null}
+
+                        {canManageStatus ? (
+                          <form action={updateStatusAction} className="flex flex-wrap gap-2 md:max-w-[280px] md:justify-end">
+                            <input type="hidden" name="id" value={task.id} />
+                            <button
+                              type="submit"
+                              name="status"
+                              value="pending"
+                              data-testid={`improvement-task-status-pending-${task.id}`}
+                              className="nb-btn-xs"
+                            >
+                              待處理
+                            </button>
+                            <button
+                              type="submit"
+                              name="status"
+                              value="resolved"
+                              data-testid={`improvement-task-status-resolved-${task.id}`}
+                              className="nb-btn-xs bg-nb-yellow"
+                            >
+                              已改善
+                            </button>
+                            <button
+                              type="submit"
+                              name="status"
+                              value="verified"
+                              data-testid={`improvement-task-status-verified-${task.id}`}
+                              className="nb-btn-xs bg-nb-green"
+                            >
+                              已確認
+                            </button>
+                            <button
+                              type="submit"
+                              name="status"
+                              value="superseded"
+                              data-testid={`improvement-task-status-superseded-${task.id}`}
+                              className="nb-btn-xs bg-nb-ink text-white"
+                            >
+                              已替代
+                            </button>
+                          </form>
+                        ) : canReportResolved && task.status === "pending" ? (
+                          <details
+                            data-testid={`improvement-task-report-form-${task.id}`}
+                            className="md:max-w-[320px] md:min-w-[260px] border-[3px] border-nb-ink bg-white shadow-nb-sm"
+                          >
+                            <summary className="cursor-pointer list-none bg-nb-yellow px-3 py-2 text-center text-xs font-black text-nb-ink marker:hidden [&::-webkit-details-marker]:hidden">
+                              回報已改善 ▾
+                            </summary>
+                            <form
+                              action={updateStatusAction}
+                              encType="multipart/form-data"
+                              className="flex flex-col gap-3 border-t-[3px] border-nb-ink p-3"
+                            >
+                              <input type="hidden" name="id" value={task.id} />
+                              <input type="hidden" name="status" value="resolved" />
+                              <label className="flex flex-col gap-1 text-xs font-black text-nb-ink">
+                                <span>改善照片（選填，可多張）</span>
+                                <input
+                                  type="file"
+                                  name="resolutionPhotos"
+                                  multiple
+                                  accept="image/*"
+                                  data-testid={`improvement-task-report-photos-${task.id}`}
+                                  className="block w-full text-xs file:mr-2 file:rounded-none file:border-[3px] file:border-nb-ink file:bg-nb-bg2 file:px-2 file:py-1 file:text-xs file:font-black"
+                                />
+                              </label>
+                              <label className="flex flex-col gap-1 text-xs font-black text-nb-ink">
+                                <span>改善說明（選填）</span>
+                                <textarea
+                                  name="resolutionNote"
+                                  rows={3}
+                                  placeholder="例：已重新貼上溫度紀錄表並安排每日確認。"
+                                  data-testid={`improvement-task-report-note-${task.id}`}
+                                  className="border-[3px] border-nb-ink bg-white px-2 py-1 text-xs font-bold text-nb-ink focus:outline-none"
+                                />
+                              </label>
+                              <button
+                                type="submit"
+                                data-testid={`improvement-task-report-resolved-${task.id}`}
+                                className="nb-btn-xs bg-nb-yellow"
+                              >
+                                送出已改善
+                              </button>
+                              <p className="text-[10px] leading-4 text-nb-ink/60 font-bold">
+                                提示：照片與說明可選填；總大小請控制在 8MB 內，避免上傳失敗。
+                              </p>
+                            </form>
+                          </details>
+                        ) : (
+                          <div className="nb-card-flat px-4 py-3 text-xs leading-5 text-nb-ink/60 font-bold md:max-w-[240px]">
+                            {task.status === "resolved" ? "已回報改善，等待主管確認。" : "此任務目前不需店長操作。"}
+                          </div>
+                        )}
                       </div>
 
-                      {canManageStatus ? (
-                        <form action={updateStatusAction} className="flex flex-wrap gap-2 md:max-w-[280px] md:justify-end">
-                          <input type="hidden" name="id" value={task.id} />
-                          <button
-                            type="submit"
-                            name="status"
-                            value="pending"
-                            data-testid={`improvement-task-status-pending-${task.id}`}
-                            className="nb-btn-xs"
-                          >
-                            待處理
-                          </button>
-                          <button
-                            type="submit"
-                            name="status"
-                            value="resolved"
-                            data-testid={`improvement-task-status-resolved-${task.id}`}
-                            className="nb-btn-xs bg-nb-yellow"
-                          >
-                            已改善
-                          </button>
-                          <button
-                            type="submit"
-                            name="status"
-                            value="verified"
-                            data-testid={`improvement-task-status-verified-${task.id}`}
-                            className="nb-btn-xs bg-nb-green"
-                          >
-                            已確認
-                          </button>
-                          <button
-                            type="submit"
-                            name="status"
-                            value="superseded"
-                            data-testid={`improvement-task-status-superseded-${task.id}`}
-                            className="nb-btn-xs bg-nb-ink text-white"
-                          >
-                            已替代
-                          </button>
-                        </form>
-                      ) : canReportResolved && task.status === "pending" ? (
-                        <form action={updateStatusAction} className="flex flex-wrap gap-2 md:max-w-[240px] md:justify-end">
-                          <input type="hidden" name="id" value={task.id} />
-                          <button
-                            type="submit"
-                            name="status"
-                            value="resolved"
-                            data-testid={`improvement-task-report-resolved-${task.id}`}
-                            className="nb-btn-xs bg-nb-yellow"
-                          >
-                            回報已改善
-                          </button>
-                        </form>
-                      ) : (
-                        <div className="nb-card-flat px-4 py-3 text-xs leading-5 text-nb-ink/60 font-bold md:max-w-[240px]">
-                          {task.status === "resolved" ? "已回報改善，等待主管確認。" : "此任務目前不需店長操作。"}
+                      {showResolutionEvidence ? (
+                        <div className="mt-3 space-y-2 border-t-[3px] border-nb-ink/20 pt-3">
+                          <p className="nb-eyebrow">改善佐證</p>
+                          {task.resolutionNote ? (
+                            <p className="text-sm leading-6 text-nb-ink/80 bg-nb-green/20 border-l-[3px] border-nb-ink px-3 py-2">
+                              {task.resolutionNote}
+                            </p>
+                          ) : null}
+                          {task.resolutionPhotoUrls.length > 0 ? (
+                            <div className="flex flex-wrap gap-2">
+                              {task.resolutionPhotoUrls.map((url, index) => (
+                                <a
+                                  key={`${task.id}-resolution-photo-${index}`}
+                                  href={url}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="block border-[3px] border-nb-ink bg-white shadow-nb-sm"
+                                >
+                                  <Image
+                                    src={url}
+                                    alt={`改善照片 ${index + 1}`}
+                                    width={120}
+                                    height={120}
+                                    unoptimized
+                                    className="h-[120px] w-[120px] object-cover"
+                                  />
+                                </a>
+                              ))}
+                            </div>
+                          ) : null}
                         </div>
-                      )}
+                      ) : null}
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </details>
           ))}

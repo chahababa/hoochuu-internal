@@ -165,6 +165,8 @@ export type ImprovementTaskListItem = {
   createdAt: string;
   resolvedAt: string | null;
   verifiedAt: string | null;
+  resolutionNote: string | null;
+  resolutionPhotoUrls: string[];
   store: { id: string; name: string } | null;
   item: { id: string; name: string } | null;
   score: {
@@ -871,6 +873,40 @@ async function uploadInspectionMenuItemPhotos(params: {
   }
 }
 
+async function uploadImprovementResolutionPhotos(params: {
+  admin: ReturnType<typeof createAdminClient>;
+  taskId: string;
+  photos: ImprovementResolutionPhotoInput[];
+}): Promise<string[]> {
+  const { admin, taskId, photos } = params;
+  const urls: string[] = [];
+
+  for (const photo of photos) {
+    if (!photo.buffer || photo.buffer.length === 0) {
+      continue;
+    }
+
+    const safeFileName = `${crypto.randomUUID()}-${photo.fileName.replace(/[^\w.\-]+/g, "_")}`;
+    const objectPath = `improvements/${taskId}/${safeFileName}`;
+
+    const { error: uploadError } = await admin.storage
+      .from("inspection-photos")
+      .upload(objectPath, photo.buffer, {
+        contentType: photo.contentType,
+        upsert: false,
+      });
+
+    if (uploadError) {
+      throw new Error(uploadError.message);
+    }
+
+    const { data: publicUrlData } = admin.storage.from("inspection-photos").getPublicUrl(objectPath);
+    urls.push(normalizePhotoDisplayUrl(publicUrlData.publicUrl));
+  }
+
+  return urls;
+}
+
 async function removeInspectionPhotoObjects(params: {
   admin: ReturnType<typeof createAdminClient>;
   photoUrls: Array<string | null | undefined>;
@@ -1242,7 +1278,7 @@ export async function getImprovementTasks(): Promise<ImprovementTaskListItem[]> 
   let query = admin
     .from("improvement_tasks")
     .select(
-      "id, status, created_at, resolved_at, verified_at, store_id, item_id, stores(id, name), inspection_items(id, name), inspection_scores(id, score, note, is_focus_item, applied_tag_types, inspection_id, inspections(date))",
+      "id, status, created_at, resolved_at, verified_at, resolution_note, resolution_photo_urls, store_id, item_id, stores(id, name), inspection_items(id, name), inspection_scores(id, score, note, is_focus_item, applied_tag_types, inspection_id, inspections(date))",
     )
     .order("created_at", { ascending: false });
 
@@ -1277,6 +1313,8 @@ export async function getImprovementTasks(): Promise<ImprovementTaskListItem[]> 
       createdAt: row.created_at,
       resolvedAt: row.resolved_at,
       verifiedAt: row.verified_at,
+      resolutionNote: (row.resolution_note as string | null | undefined) ?? null,
+      resolutionPhotoUrls: ((row.resolution_photo_urls as string[] | null | undefined) ?? []).filter(Boolean),
       store: store
         ? {
             id: store.id as string,
@@ -1304,16 +1342,24 @@ export async function getImprovementTasks(): Promise<ImprovementTaskListItem[]> 
   });
 }
 
+export type ImprovementResolutionPhotoInput = {
+  fileName: string;
+  contentType: string;
+  buffer: Buffer;
+};
+
 export async function updateImprovementTaskStatus(input: {
   id: string;
   status: ImprovementStatus;
+  resolutionNote?: string | null;
+  resolutionPhotos?: ImprovementResolutionPhotoInput[];
 }) {
   const profile = await requireRole("owner", "manager", "leader");
   const admin = createAdminClient();
 
   const { data: existingTask, error: taskError } = await admin
     .from("improvement_tasks")
-    .select("id, status, store_id")
+    .select("id, status, store_id, resolution_photo_urls")
     .eq("id", input.id)
     .maybeSingle();
 
@@ -1341,6 +1387,8 @@ export async function updateImprovementTaskStatus(input: {
     resolved_at?: string | null;
     resolved_by?: string | null;
     verified_at?: string | null;
+    resolution_note?: string | null;
+    resolution_photo_urls?: string[];
   } = {
     status: input.status,
   };
@@ -1349,6 +1397,22 @@ export async function updateImprovementTaskStatus(input: {
     payload.resolved_at = new Date().toISOString();
     payload.resolved_by = profile.id;
     payload.verified_at = null;
+
+    const trimmedNote = input.resolutionNote?.trim() ?? "";
+    if (input.resolutionNote !== undefined) {
+      payload.resolution_note = trimmedNote.length > 0 ? trimmedNote : null;
+    }
+
+    const newPhotos = input.resolutionPhotos ?? [];
+    if (newPhotos.length > 0) {
+      const uploadedUrls = await uploadImprovementResolutionPhotos({
+        admin,
+        taskId: input.id,
+        photos: newPhotos,
+      });
+      const existingUrls = ((existingTask.resolution_photo_urls as string[] | null | undefined) ?? []).filter(Boolean);
+      payload.resolution_photo_urls = [...existingUrls, ...uploadedUrls];
+    }
   } else if (input.status === "verified") {
     payload.verified_at = new Date().toISOString();
   } else if (input.status === "pending" || input.status === "superseded") {
