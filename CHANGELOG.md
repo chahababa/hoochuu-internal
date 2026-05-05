@@ -2,6 +2,18 @@
 
 ## 2026-05-05 Latest
 
+### 修正店長回報已改善後出現整頁錯誤
+
+- `fix: tolerate notion sync failures when updating improvement tasks`
+  - 修正店長在「改善追蹤」頁面點擊「回報已改善」時，因 Notion 同步失敗（Page 不存在、狀態選項缺漏、API token 等問題）導致整個 server action 拋錯、畫面出現 `Application error: a server-side exception has occurred` 的問題。
+  - `syncNotionImprovementTaskById` 把 Notion API 與後續的 `notion_page_id` 寫入動作包成 try/catch，失敗時改寫到 `console.error`，不再阻擋使用者推進改善任務狀態。
+
+### 驗證
+
+- `npx vitest run src/lib/improvement-workflow.test.ts`
+
+---
+
 ### 修正通知中心右欄版面溢出
 
 - `fix: keep notification cards inside priority columns`
