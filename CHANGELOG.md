@@ -1,5 +1,26 @@
 # Changelog
 
+## 2026-05-07 Latest
+
+### 巡店 A 評分可補充備註與照片
+
+- `feat: allow notes for A inspection scores`
+  - 巡店表單在選擇 A / B / C 任一評分後，都會展開「備註」與「巡店照片」欄位。
+  - A 評分現在可選填良好觀察、現場補充或照片，不再只能在 B / C 時留言。
+  - B / C 仍維持備註必填規則，改善任務也仍只會在 B / C 低分時建立。
+
+### 部署注意
+
+- 不需要新增 Supabase migration 或環境變數。
+- 合併到 `main` 後由既有 Zeabur 流程自動部署。
+
+### 驗證
+
+- `npm run typecheck`
+- `npm run lint`
+
+---
+
 ## 2026-05-05 Latest
 
 ### 改善追蹤：回報已改善時可附照片與說明
