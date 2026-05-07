@@ -1030,8 +1030,8 @@ export function InspectionForm({
                   };
                   const itemPhotos = photos[item.id] ?? [];
                   const hasFollowupContent = value.note.trim().length > 0 || itemPhotos.length > 0;
-                  const needsFollowup = value.score !== null && value.score <= 2;
-                  const showFollowup = needsFollowup || hasFollowupContent;
+                  const hasScore = value.score !== null;
+                  const showFollowup = hasScore || hasFollowupContent;
 
                   return (
                     <article
@@ -1105,7 +1105,7 @@ export function InspectionForm({
                               data-testid={`inspection-note-${item.id}`}
                               value={value.note}
                               onChange={(event) => setNote(item.id, event.target.value)}
-                              placeholder="若為 B 或 C，請補充異常原因、現場觀察或後續處理方式。"
+                              placeholder="A 可補充良好觀察；B 或 C 請補充異常原因、現場觀察或後續處理方式。"
                               className="nb-textarea min-h-28"
                             />
                           </div>
@@ -1168,9 +1168,9 @@ export function InspectionForm({
                         </div>
                       ) : (
                         <div className="nb-empty mt-4 bg-nb-paper/70">
-                          {value.score === 3
-                            ? "這題目前評為 A，暫時不需要補充備註與照片。"
-                            : "若選 B 或 C，系統會自動展開備註與照片欄位。"}
+                          {value.score === null
+                            ? "選擇 A、B 或 C 後，系統會展開備註與照片欄位。"
+                            : "可補充備註與照片；B 或 C 仍必須填寫備註。"}
                         </div>
                       )}
                     </article>
