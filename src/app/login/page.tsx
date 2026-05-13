@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-import { LoginButton } from "@/app/login/login-button";
+import { LoginForm } from "@/app/login/login-form";
 import { getCurrentUserProfile } from "@/lib/auth";
 
 export default async function LoginPage() {
@@ -50,12 +50,12 @@ export default async function LoginPage() {
 
             <div className="border-[2.5px] border-nb-ink bg-nb-bg2 p-5">
               <p className="text-sm font-bold leading-6 text-nb-ink/75">
-                請先使用 Google 帳號登入。是否可進入系統，仍會由授權使用者名單進一步控管。
+                可用 Google 帳號或 Email + 密碼登入。是否可進入系統，仍會由授權使用者名單進一步控管。
               </p>
             </div>
 
             <div className="mt-8">
-              <LoginButton />
+              <LoginForm />
             </div>
           </div>
         </div>
