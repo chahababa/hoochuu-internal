@@ -85,11 +85,11 @@ set sort_order = excluded.sort_order,
 
 insert into public.inspection_items (category_id, name, sort_order, is_base, is_active)
 values
-  ((select id from public.categories where name = '外場作業環境'), '台北站前店自助區備品完整', 101, false, true),
-  ((select id from public.categories where name = '服務品質'), '台北站前店尖峰支援安排到位', 102, false, true),
-  ((select id from public.categories where name = '餐點品質'), '板橋車站店外送交接架整齊', 101, false, true),
-  ((select id from public.categories where name = '內場作業環境'), '桃園廣場店炸台備援工具齊全', 101, false, true),
-  ((select id from public.categories where name = '服務品質'), '中壢樞紐店晚班清潔交接完整', 101, false, true)
+  ((select id from public.categories where name = '外場作業環境'), '1店自助區備品完整', 101, false, true),
+  ((select id from public.categories where name = '服務品質'), '1店尖峰支援安排到位', 102, false, true),
+  ((select id from public.categories where name = '餐點品質'), '2店外送交接架整齊', 101, false, true),
+  ((select id from public.categories where name = '內場作業環境'), '3店炸台備援工具齊全', 101, false, true),
+  ((select id from public.categories where name = '服務品質'), '4店晚班清潔交接完整', 101, false, true)
 on conflict (category_id, name) do update
 set sort_order = excluded.sort_order,
     is_base = excluded.is_base,
@@ -98,34 +98,34 @@ set sort_order = excluded.sort_order,
 insert into public.store_extra_items (store_id, item_id)
 select s.id, ii.id
 from public.stores s
-join public.inspection_items ii on ii.name = '台北站前店自助區備品完整'
+join public.inspection_items ii on ii.name = '1店自助區備品完整'
 where s.code = 'store_1'
 on conflict do nothing;
 
 insert into public.store_extra_items (store_id, item_id)
 select s.id, ii.id
 from public.stores s
-join public.inspection_items ii on ii.name = '台北站前店尖峰支援安排到位'
+join public.inspection_items ii on ii.name = '1店尖峰支援安排到位'
 where s.code = 'store_1'
 on conflict do nothing;
 
 insert into public.store_extra_items (store_id, item_id)
 select s.id, ii.id
 from public.stores s
-join public.inspection_items ii on ii.name = '板橋車站店外送交接架整齊'
+join public.inspection_items ii on ii.name = '2店外送交接架整齊'
 where s.code = 'store_2'
 on conflict do nothing;
 
 insert into public.store_extra_items (store_id, item_id)
 select s.id, ii.id
 from public.stores s
-join public.inspection_items ii on ii.name = '桃園廣場店炸台備援工具齊全'
+join public.inspection_items ii on ii.name = '3店炸台備援工具齊全'
 where s.code = 'store_3'
 on conflict do nothing;
 
 insert into public.store_extra_items (store_id, item_id)
 select s.id, ii.id
 from public.stores s
-join public.inspection_items ii on ii.name = '中壢樞紐店晚班清潔交接完整'
+join public.inspection_items ii on ii.name = '4店晚班清潔交接完整'
 where s.code = 'store_4'
 on conflict do nothing;
