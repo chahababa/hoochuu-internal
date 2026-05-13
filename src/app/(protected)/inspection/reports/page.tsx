@@ -171,9 +171,9 @@ export default async function InspectionReportsPage({
                   </div>
                   <span className={gradeChipClass(category.grade)}>{category.grade}</span>
                 </div>
-                <div className="mt-3 h-3 bg-nb-bg2 border-[2px] border-nb-ink">
+                <div className="mt-3 h-3 bg-nb-bg2 border-2 border-nb-ink">
                   <div
-                    className="h-full bg-nb-yellow border-r-[2px] border-nb-ink"
+                    className="h-full bg-nb-yellow border-r-2 border-nb-ink"
                     style={{ width: widthPercent(category.attentionCount, maxCategoryAttention) }}
                   />
                 </div>
@@ -198,9 +198,9 @@ export default async function InspectionReportsPage({
                   <p className="font-nbSerif text-base font-black">{item.itemName}</p>
                   <span className={gradeChipClass(item.averageGrade)}>{item.averageGrade}</span>
                 </div>
-                <div className="mt-3 h-3 bg-nb-bg2 border-[2px] border-nb-ink">
+                <div className="mt-3 h-3 bg-nb-bg2 border-2 border-nb-ink">
                   <div
-                    className="h-full bg-nb-red border-r-[2px] border-nb-ink"
+                    className="h-full bg-nb-red border-r-2 border-nb-ink"
                     style={{ width: widthPercent(item.occurrences, maxProblemOccurrences) }}
                   />
                 </div>
@@ -232,7 +232,7 @@ export default async function InspectionReportsPage({
                 </div>
                 <span className={gradeChipClass(store.overallGrade)}>{store.overallGrade}</span>
               </div>
-              <div className="mt-3 h-3 bg-nb-bg2 border-[2px] border-nb-ink">
+              <div className="mt-3 h-3 bg-nb-bg2 border-2 border-nb-ink">
                 <div
                   className="h-full bg-nb-ink"
                   style={{ width: widthPercent(store.inspections, maxStoreInspections) }}

@@ -385,7 +385,7 @@ export default async function HomePage() {
                   <div className="bg-nb-paper border-[2.5px] border-nb-ink px-4 py-3">
                     <p className="font-nbMono text-[10px] font-bold tracking-widest uppercase text-nb-ink/60">本月總評</p>
                     {overallGrade ? (
-                      <p className={`mt-2 inline-flex items-center justify-center min-w-[3rem] h-12 px-3 border-[2.5px] border-nb-ink font-nbSerif text-3xl font-black ${getGradeChipClass(overallGrade.finalGrade)}`}>
+                      <p className={`mt-2 inline-flex items-center justify-center min-w-12 h-12 px-3 border-[2.5px] border-nb-ink font-nbSerif text-3xl font-black ${getGradeChipClass(overallGrade.finalGrade)}`}>
                         {overallGrade.finalGrade}
                       </p>
                     ) : (
@@ -407,7 +407,7 @@ export default async function HomePage() {
           <div className="nb-card-sm px-5 py-4">
             <p className="nb-eyebrow">{profile.role === "leader" ? "本店總評" : "本月總評"}</p>
             {overallGrade ? (
-              <p className={`mt-3 inline-flex items-center justify-center min-w-[3.5rem] h-14 px-4 border-[2.5px] border-nb-ink font-nbSerif text-3xl font-black ${getGradeChipClass(overallGrade.finalGrade)}`}>
+              <p className={`mt-3 inline-flex items-center justify-center min-w-14 h-14 px-4 border-[2.5px] border-nb-ink font-nbSerif text-3xl font-black ${getGradeChipClass(overallGrade.finalGrade)}`}>
                 {overallGrade.finalGrade}
               </p>
             ) : (
@@ -471,7 +471,7 @@ export default async function HomePage() {
                 <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="inline-flex items-center px-2.5 py-1 bg-nb-paper border-[2px] border-nb-ink text-nb-ink text-xs font-bold">
+                      <span className="inline-flex items-center px-2.5 py-1 bg-nb-paper border-2 border-nb-ink text-nb-ink text-xs font-bold">
                         {getNotificationLevelLabel(item.level)} 優先
                       </span>
                       {item.storeName ? <span className="font-nbMono text-xs font-bold opacity-85">{item.storeName}</span> : null}
@@ -579,7 +579,7 @@ export default async function HomePage() {
                           {task.tagTypes.map((tagType) => (
                             <span
                               key={`${task.id}-${tagType}`}
-                              className={`inline-flex items-center px-2.5 py-1 border-[2px] border-nb-ink text-xs font-bold ${getTagChipClass(tagType)}`}
+                              className={`inline-flex items-center px-2.5 py-1 border-2 border-nb-ink text-xs font-bold ${getTagChipClass(tagType)}`}
                             >
                               {getInspectionTagLabel(tagType)}
                             </span>

@@ -258,7 +258,7 @@ export default async function ImprovementTasksPage() {
                                   rows={3}
                                   placeholder="例：已重新貼上溫度紀錄表並安排每日確認。"
                                   data-testid={`improvement-task-report-note-${task.id}`}
-                                  className="border-[3px] border-nb-ink bg-white px-2 py-1 text-xs font-bold text-nb-ink focus:outline-none"
+                                  className="border-[3px] border-nb-ink bg-white px-2 py-1 text-xs font-bold text-nb-ink focus:outline-hidden"
                                 />
                               </label>
                               <button

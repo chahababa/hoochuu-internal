@@ -51,7 +51,7 @@ export function LoginButton() {
         {loading ? "跳轉中..." : "使用 Google 帳號登入 →"}
       </button>
       {errorMessage ? (
-        <p className="border-[2px] border-nb-ink bg-nb-red px-3 py-2 text-sm font-bold text-white">{errorMessage}</p>
+        <p className="border-2 border-nb-ink bg-nb-red px-3 py-2 text-sm font-bold text-white">{errorMessage}</p>
       ) : null}
     </div>
   );

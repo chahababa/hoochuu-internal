@@ -47,7 +47,7 @@ export function ImpersonationMenu({ stores }: { stores: StoreOption[] }) {
           <button
             type="button"
             onClick={() => pick("manager")}
-            className="text-left px-3 py-2 text-sm font-bold text-nb-ink hover:bg-nb-bg2 border-[2px] border-transparent hover:border-nb-ink transition-colors"
+            className="text-left px-3 py-2 text-sm font-bold text-nb-ink hover:bg-nb-bg2 border-2 border-transparent hover:border-nb-ink transition-colors"
           >
             👔 主管視角
           </button>
@@ -56,7 +56,7 @@ export function ImpersonationMenu({ stores }: { stores: StoreOption[] }) {
               key={store.id}
               type="button"
               onClick={() => pick("leader", store.id)}
-              className="text-left px-3 py-2 text-sm font-bold text-nb-ink hover:bg-nb-bg2 border-[2px] border-transparent hover:border-nb-ink transition-colors"
+              className="text-left px-3 py-2 text-sm font-bold text-nb-ink hover:bg-nb-bg2 border-2 border-transparent hover:border-nb-ink transition-colors"
             >
               🏪 店長 @ {store.name}
             </button>

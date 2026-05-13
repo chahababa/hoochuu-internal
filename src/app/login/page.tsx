@@ -13,7 +13,7 @@ export default async function LoginPage() {
   return (
     <main className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-12">
       <div className="absolute left-6 top-6 hidden h-20 w-20 rotate-[-8deg] border-[3px] border-nb-ink bg-nb-yellow shadow-nb md:block" />
-      <div className="absolute bottom-8 right-8 hidden h-24 w-24 rotate-[10deg] border-[3px] border-nb-ink bg-nb-blue shadow-nb md:block" />
+      <div className="absolute bottom-8 right-8 hidden h-24 w-24 rotate-10 border-[3px] border-nb-ink bg-nb-blue shadow-nb md:block" />
       <div className="absolute right-[18%] top-[14%] hidden h-5 w-5 rounded-full border-[3px] border-nb-ink bg-nb-red lg:block" />
 
       <section className="nb-card relative w-full max-w-5xl overflow-hidden p-0">

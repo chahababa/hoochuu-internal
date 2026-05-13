@@ -91,7 +91,7 @@ export default async function NotificationsPage() {
         </SectionCard>
       ) : null}
 
-      <div className="grid gap-6 xl:grid-cols-[repeat(3,minmax(0,1fr))]">
+      <div className="grid gap-6 xl:grid-cols-3">
         <div className="min-w-0">
           <SectionCard
             title="高優先"
@@ -160,8 +160,8 @@ function NotificationCard({
           {item.date ? <span className="text-xs font-bold font-nbMono opacity-85">{item.date}</span> : null}
         </div>
         <div className="min-w-0">
-          <p className="break-words font-nbSerif text-lg font-black">{item.title}</p>
-          <p className="mt-2 break-words text-sm leading-6 font-bold opacity-90">{item.description}</p>
+          <p className="wrap-break-word font-nbSerif text-lg font-black">{item.title}</p>
+          <p className="mt-2 wrap-break-word text-sm leading-6 font-bold opacity-90">{item.description}</p>
         </div>
         {item.href ? (
           <div>
