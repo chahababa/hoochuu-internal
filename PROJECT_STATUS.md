@@ -4,7 +4,7 @@
 
 `Stores Checking System` is currently at an internal beta stage and is deployed on Zeabur.
 
-- GitHub repo: `chahababa/Stores-checking-system`
+- GitHub repo: `chahababa/hoochuu-internal`
 - Default branch: `main`
 - Production URL: `https://stores-checking-system.zeabur.app`
 - Current production behavior: unauthenticated `/` requests redirect to `/login`, and `/login` responds successfully.

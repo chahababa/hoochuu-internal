@@ -39,6 +39,6 @@
 
 ## Resolved / Historical
 
-- GitHub repo creation and initial push are complete. The active repo is `chahababa/Stores-checking-system`.
+- GitHub repo creation and initial push are complete. The active repo is `chahababa/hoochuu-internal`.
 - The old GitHub CLI token blocker is no longer a production blocker. This machine currently has no `gh` command installed, so use git plus GitHub MCP/API for repo operations unless `gh` is installed later.
 - Production hosting is already on Zeabur at `https://stores-checking-system.zeabur.app`.
