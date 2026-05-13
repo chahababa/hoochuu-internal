@@ -4,9 +4,9 @@ This file gives Claude Code / 任何 AI assistant 快速進入專案的脈絡。
 
 ## 專案身分
 
-這個 repo 是 **Stores-checking-system（SCS，巡店系統）**，目前是好初早餐（4 間店）的 production 系統，員工每日使用。
+這個 repo 是 **`hoochuu-internal`**（前身 `Stores-checking-system`，SCS 巡店系統），目前是好初早餐（4 間店）的 production 系統，員工每日使用。
 
-**重要**：本 repo 目前正在進行「好初內部系統合併」專案，未來會擴展成 `hoochuu-internal` 平台，整合 BOM 系統（chahababa/Hoochuu-Bom-System）。詳見下方「合併專案脈絡」。
+**重要**：本 repo 已於 2026-05-13 改名為 `hoochuu-internal`，正在進行「好初內部系統合併」專案，會把 BOM 系統（`chahababa/Hoochuu-Bom-System`）合併進來。詳見下方「合併專案脈絡」。
 
 ## 技術 stack（2026-05-13 起）
 
@@ -56,9 +56,9 @@ This file gives Claude Code / 任何 AI assistant 快速進入專案的脈絡。
 
 - **Phase 0 Step D（shadcn init）**：新版 shadcn CLI `-d` 預設（`base-nova` preset）會覆寫 `src/lib/utils.ts`（刪 `formatMonthValue`）、改 `layout.tsx` 加 Geist 字體、`globals.css` 加 140 行 `body { bg-background }` 直接覆蓋 Neo Brutalism 米黃底。已 `git restore` + `git clean -fd` 撤回。延到 Phase 4 BOM UI port 進來時再評估整合方式。
 
-### 工作分支
+### 已合併到 main
 
-`phase-0-framework-upgrade`（push 上 GitHub）→ Draft PR：https://github.com/chahababa/Stores-checking-system/pull/22
+Phase 0 全段於 2026-05-13 末以 squash-merge 進 `main`（commit `3b9888e`）。原 PR：https://github.com/chahababa/hoochuu-internal/pull/22 （含完整變更說明與驗證紀錄）。工作分支 `phase-0-framework-upgrade` 已刪除。
 
 ### 保險點
 
@@ -81,9 +81,7 @@ git reset --hard pre-phase-0
    - `/notifications`（三欄、長標題不溢出）
    - `/settings/items`（自助 form）
    - 跑 `npm run dev` + 開瀏覽器、跟升級前印象對比
-3. **GitHub repo 改名**：`Stores-checking-system` → `hoochuu-internal`（plan §B Phase 0 第 4 點）
-   - 用 `gh repo rename hoochuu-internal` 可一行解決
-   - **連鎖影響**：要同步更新所有本機 `.git/config` 的 remote URL、Zeabur Git source、書籤
+3. ~~**GitHub repo 改名**：`Stores-checking-system` → `hoochuu-internal`~~ ✅ 2026-05-13 完成（Zeabur GitHub App 自動 follow rename，無需手動更新 source）
 4. **Zeabur staging redeploy + 驗證**（owner 親自做）
 5. **PR #22 draft → ready-for-review → merge → production redeploy**
 

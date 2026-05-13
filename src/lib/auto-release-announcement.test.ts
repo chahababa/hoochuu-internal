@@ -8,15 +8,15 @@ describe("buildAutoReleaseAnnouncement", () => {
       commitSha: "24d66922987a4c9123adc761dd71460da43d668d",
       commitSubject: "feat: add release update notifications (#12)",
       commitBody: "- Add a new settings page\n- Add published announcements to notifications\n\nCo-authored-by: chahababa <user@example.com>",
-      repository: "chahababa/Stores-checking-system",
-      commitUrl: "https://github.com/chahababa/Stores-checking-system/commit/24d6692",
+      repository: "chahababa/hoochuu-internal",
+      commitUrl: "https://github.com/chahababa/hoochuu-internal/commit/24d6692",
       publishedOn: "2026-05-04",
     });
 
     expect(announcement).toEqual({
       title: "新功能：add release update notifications",
       summary:
-        "- Add a new settings page\n- Add published announcements to notifications\n\n來源：chahababa/Stores-checking-system @ 24d6692\nhttps://github.com/chahababa/Stores-checking-system/commit/24d6692",
+        "- Add a new settings page\n- Add published announcements to notifications\n\n來源：chahababa/hoochuu-internal @ 24d6692\nhttps://github.com/chahababa/hoochuu-internal/commit/24d6692",
       audience: "all",
       publishedOn: "2026-05-04",
       isActive: true,

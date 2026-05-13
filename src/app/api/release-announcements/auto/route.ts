@@ -35,7 +35,7 @@ async function isAuthorized(request: Request, payload: AutoReleasePayload) {
   if (!token) return false;
 
   const result = await verifyGitHubActionsOidcToken(token, {
-    repository: "chahababa/Stores-checking-system",
+    repository: "chahababa/hoochuu-internal",
     ref: "refs/heads/main",
     commitSha: payload.commitSha,
   });
