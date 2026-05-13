@@ -907,7 +907,7 @@ export function InspectionForm({
                 </div>
                 {checked ? (
                   <label className="mt-3 grid gap-2 text-sm">
-                    <span className="nb-label !mb-0">本次巡店工作站</span>
+                    <span className="nb-label mb-0!">本次巡店工作站</span>
                     <select
                       value={selectedWorkstationId}
                       onChange={(event) => setStaffWorkstation(staff.id, event.target.value)}
@@ -936,7 +936,7 @@ export function InspectionForm({
         </div>
       </section>
 
-      <section className="sticky top-2 z-10 nb-card bg-nb-bg2/95 backdrop-blur px-3 py-3 sm:top-4 sm:px-5 sm:py-5">
+      <section className="sticky top-2 z-10 nb-card bg-nb-bg2/95 backdrop-blur-sm px-3 py-3 sm:top-4 sm:px-5 sm:py-5">
         <div className="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <p className="nb-eyebrow">Quick Nav</p>
@@ -963,7 +963,7 @@ export function InspectionForm({
           </div>
         </div>
 
-        <div className="-mx-1 mt-3 overflow-x-auto px-1 pb-1 [scrollbar-width:none]" data-testid="inspection-category-nav">
+        <div className="-mx-1 mt-3 overflow-x-auto px-1 pb-1 scrollbar-none" data-testid="inspection-category-nav">
           <div className="flex min-w-max gap-2">
           {seed.groupedItems.map((group, index) => {
             const answeredCount = group.items.filter((item) => form.scores[item.id]?.score !== null).length;

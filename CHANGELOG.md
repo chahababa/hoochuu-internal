@@ -1,5 +1,67 @@
 # Changelog
 
+## 2026-05-13 Latest
+
+### Next.js 16 + React 19.2 升級
+
+- `chore(phase-0): upgrade Next.js to 16.2.6 and React to 19.2.6`（commit `8830d73`）
+  - `next` 15.3.0 → 16.2.6、`react` / `react-dom` 19.0.0 → 19.2.6。
+  - Turbopack 在 Next 16 變預設 build 工具，`next build` output 從 Webpack 換成 Turbopack。
+  - SCS 在 Next 15 時代就已經把所有 `cookies()` / `headers()` / `params` / `searchParams` 改成 async API、不需要再跑官方 codemod。
+  - `tsconfig.json`（`jsx` 改 `react-jsx`、`include` 加 `.next/dev/types/**/*.ts`）與 `next-env.d.ts` 由 `next build` 自動更新一次。
+  - Runtime 行為沒有改變，build / typecheck / 62 個 unit test 全綠。
+
+### Tailwind CSS v4 升級
+
+- `chore(phase-0): upgrade Tailwind CSS to v4.3.0`（commit `5574a32`）
+  - `tailwindcss` 3.4.19 → 4.3.0，PostCSS plugin 換成 `@tailwindcss/postcss`，`autoprefixer` 移除（v4 內建 Lightning CSS）。
+  - `tailwind.config.ts` 整檔刪除；既有色票、字體、shadow、radius 全部搬到 `src/app/globals.css` 的 `@theme` 區塊，CSS-first config 取代 JS-based config。
+  - 30+ 個 Neo Brutalism 元件 class（`.nb-card`、`.nb-btn`、`.nb-input` 等）從 `@layer components { @apply ... }` 改寫為 v4 的 `@utility nb-* { @apply ... }` 語法。
+  - 9 個 `.tsx` / `.test.ts` 由 `@tailwindcss/upgrade` 自動 migrate：`outline-none` → `outline-hidden`、`break-words` → `wrap-break-word`、`!mb-0` → `mb-0!`、`border-[2px]` → `border-2`、`[scrollbar-width:none]` → `scrollbar-none` 等。
+  - 視覺破版風險偏中（尤其 Neo Brutalism 自訂 class + body backdrop），尚未做完整視覺巡檢。
+
+### 建立 BOM schema 空殼（合併準備）
+
+- `feat(phase-0): scaffold bom schema for upcoming BOM system merge`（commit `1b2f1df`）
+  - 新增 migration `supabase/migrations/20260513_000016_create_bom_schema.sql`：`create schema if not exists bom;` + `grant usage on schema bom to anon, authenticated, service_role;` + 一行 `comment on schema bom`。
+  - 純空 schema、不含任何 table / function / RLS；為日後從 `chahababa/Hoochuu-Bom-System` 合併 17 張表預留命名空間。
+  - 編號用 `_000016`，因為 PR #19 的 `20260505_000015_normalize_inspection_item_store_names.sql` 已佔用 `_000015`。
+
+### middleware → proxy 改名
+
+- `chore(phase-0): rename middleware to proxy for Next 16`（commit `ec84971`）
+  - Next 16 把 `middleware` file convention 改名為 `proxy`，`next build` 會印 deprecation warning。
+  - `src/middleware.ts` 改名為 `src/proxy.ts`、`export function middleware()` 改成 `export function proxy()`。
+  - Runtime 行為（複製 request headers、設 `x-pathname`、回 `NextResponse.next`）完全不變，`export const config.matcher` 也不動；只是換名。
+
+### 巡店系統加上 Email / Password 登入
+
+- `feat(phase-0.5): add email/password login alongside Google OAuth`（commit `7b24bc7`）
+  - `src/app/login/login-button.tsx` 改名為 `login-form.tsx`，新增 Email + 密碼欄位與對應 `signInWithPassword` handler。
+  - Google OAuth 流程一字未動，只是 handler 命名改成 `handleGoogleLogin` 跟新的 `handlePasswordLogin` 對稱；loading / error state 共用。
+  - 表單用既有 Neo Brutalism utility（`.nb-input`、`.nb-btn-primary`、`.nb-label`）渲染，**不引入 shadcn 或 react-hook-form / zod**。
+  - 不需後端改動：`requireUser()` / `getCurrentUserProfile()` 透過 `auth.uid()` 統一辨識身份，對 OAuth 與 password user 中立。
+  - 設計決策：**不做 signup form、不做 forgot password UI**。員工帳號全部由 owner 在 Supabase Dashboard 預先建立，忘記密碼也走 Dashboard 重設。
+  - `src/lib/login-page-ui.test.ts` 跟著 rename 更新檔案路徑與描述。
+
+### 部署注意
+
+- Migration 套用：`supabase/migrations/20260513_000016_create_bom_schema.sql`。
+- Supabase Dashboard 手動步驟（部署 / Zeabur redeploy 前必做）：
+  - Project Settings → API → Exposed schemas 加上 `bom`（SCS 沒有 `supabase/config.toml`，這步只能 Dashboard 點）。
+  - Authentication → Providers → Email 啟用 Email provider。
+  - Authentication → Users → Add user 建第一個 password 帳號，勾「Auto Confirm User」跳過 email 驗證；該 email 要對得上 `public.users.email` 且 `is_active = true`。
+- 不需要新增 Zeabur env。
+
+### 驗證
+
+- `npm run build`（Next 16 + Turbopack，compile ~2 秒）
+- `npm run typecheck`
+- `npm run test`（19 test files / 62 tests）
+- 視覺巡檢與 playwright e2e 留到 staging redeploy 後再做。
+
+---
+
 ## 2026-05-07 Latest
 
 ### 巡店 A 評分可補充備註與照片

@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-import { LoginButton } from "@/app/login/login-button";
+import { LoginForm } from "@/app/login/login-form";
 import { getCurrentUserProfile } from "@/lib/auth";
 
 export default async function LoginPage() {
@@ -13,7 +13,7 @@ export default async function LoginPage() {
   return (
     <main className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-12">
       <div className="absolute left-6 top-6 hidden h-20 w-20 rotate-[-8deg] border-[3px] border-nb-ink bg-nb-yellow shadow-nb md:block" />
-      <div className="absolute bottom-8 right-8 hidden h-24 w-24 rotate-[10deg] border-[3px] border-nb-ink bg-nb-blue shadow-nb md:block" />
+      <div className="absolute bottom-8 right-8 hidden h-24 w-24 rotate-10 border-[3px] border-nb-ink bg-nb-blue shadow-nb md:block" />
       <div className="absolute right-[18%] top-[14%] hidden h-5 w-5 rounded-full border-[3px] border-nb-ink bg-nb-red lg:block" />
 
       <section className="nb-card relative w-full max-w-5xl overflow-hidden p-0">
@@ -50,12 +50,12 @@ export default async function LoginPage() {
 
             <div className="border-[2.5px] border-nb-ink bg-nb-bg2 p-5">
               <p className="text-sm font-bold leading-6 text-nb-ink/75">
-                請先使用 Google 帳號登入。是否可進入系統，仍會由授權使用者名單進一步控管。
+                可用 Google 帳號或 Email + 密碼登入。是否可進入系統，仍會由授權使用者名單進一步控管。
               </p>
             </div>
 
             <div className="mt-8">
-              <LoginButton />
+              <LoginForm />
             </div>
           </div>
         </div>

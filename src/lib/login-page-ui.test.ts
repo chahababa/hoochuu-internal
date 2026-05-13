@@ -20,8 +20,8 @@ describe("login page neo brutalism UI", () => {
     expect(source).not.toContain("rounded-[32px] border border-ink/10 bg-white/85");
   });
 
-  it("uses the shared neo brutalism button style for Google sign-in", () => {
-    const source = readSource("src/app/login/login-button.tsx");
+  it("uses the shared neo brutalism button style for both sign-in methods", () => {
+    const source = readSource("src/app/login/login-form.tsx");
 
     expect(source).toContain("nb-btn-primary");
     expect(source).toContain("border-[2.5px] border-nb-ink");

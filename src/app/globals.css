@@ -1,225 +1,261 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
 
-:root {
-  color-scheme: light;
-  --nb-grid: rgba(15, 15, 15, 0.06);
+@theme {
+  --color-cream: #f5ecd7;
+  --color-warm: #c97b3a;
+  --color-ink: #4a3728;
+  --color-soft: #e8d5b7;
+  --color-success: #27ae60;
+  --color-warning: #f39c12;
+  --color-danger: #c0392b;
+
+  --color-nb-bg: #f4efe6;
+  --color-nb-bg2: #ede6d4;
+  --color-nb-paper: #fffdf7;
+  --color-nb-ink: #0f0f0f;
+  --color-nb-yellow: #ffe14d;
+  --color-nb-red: #ff3b30;
+  --color-nb-green: #2bd66a;
+  --color-nb-blue: #4b7bff;
+
+  --font-serifTc: var(--font-noto-serif-tc);
+  --font-lora: var(--font-lora);
+  --font-nbSerif: var(--font-fraunces), serif;
+  --font-nbMono: ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --shadow-card: 0 18px 40px rgba(74, 55, 40, 0.12);
+  --shadow-nb: 6px 6px 0 0 #0f0f0f;
+  --shadow-nb-sm: 4px 4px 0 0 #0f0f0f;
+  --shadow-nb-lg: 10px 10px 0 0 #0f0f0f;
+  --shadow-nb-hover: 3px 3px 0 0 #0f0f0f;
+
+  --radius-xl2: 1rem;
 }
 
-body {
-  @apply bg-nb-bg text-nb-ink;
-  background-image:
-    linear-gradient(var(--nb-grid) 1px, transparent 1px),
-    linear-gradient(90deg, var(--nb-grid) 1px, transparent 1px);
-  background-size: 32px 32px;
-  min-height: 100vh;
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
 }
 
-a {
-  @apply text-inherit no-underline;
-}
-
-button:disabled {
-  @apply cursor-not-allowed opacity-60;
-}
-
-/* ========================================
-   Neo Brutalism 元件 utility classes
-   這些只套在新設計的頁面；舊頁面不受影響
-   ======================================== */
-@layer components {
+@utility nb-card {
   /* ---- Cards ---- */
-  .nb-card {
-    @apply bg-nb-paper border-[3px] border-nb-ink shadow-nb;
-  }
-  .nb-card-sm {
-    @apply bg-nb-paper border-[2.5px] border-nb-ink shadow-nb-sm;
-  }
-  .nb-card-flat {
-    @apply bg-nb-paper border-[2.5px] border-nb-ink;
-  }
-
+  @apply bg-nb-paper border-[3px] border-nb-ink shadow-nb;
+}
+@utility nb-card-sm {
+  @apply bg-nb-paper border-[2.5px] border-nb-ink shadow-nb-sm;
+}
+@utility nb-card-flat {
+  @apply bg-nb-paper border-[2.5px] border-nb-ink;
+}
+@utility nb-btn {
   /* ---- Buttons ---- */
-  .nb-btn {
-    @apply inline-flex items-center gap-2 px-4 py-2.5 bg-nb-paper border-[2.5px] border-nb-ink
+  @apply inline-flex items-center gap-2 px-4 py-2.5 bg-nb-paper border-[2.5px] border-nb-ink
            shadow-nb-sm font-bold text-sm
            transition-all duration-100
            hover:-translate-y-0.5 hover:shadow-nb active:translate-x-1 active:translate-y-1 active:shadow-none;
-  }
-  .nb-btn-primary {
-    @apply nb-btn bg-nb-ink text-white;
-  }
-  .nb-btn-yellow {
-    @apply nb-btn bg-nb-yellow text-nb-ink;
-  }
-  .nb-btn-red {
-    @apply nb-btn bg-nb-red text-white;
-  }
-  .nb-btn-green {
-    @apply nb-btn bg-nb-green text-nb-ink;
-  }
-  .nb-btn-ghost {
-    @apply inline-flex items-center gap-2 px-3 py-2 bg-transparent border-[2.5px] border-transparent
+}
+@utility nb-btn-primary {
+  @apply nb-btn bg-nb-ink text-white;
+}
+@utility nb-btn-yellow {
+  @apply nb-btn bg-nb-yellow text-nb-ink;
+}
+@utility nb-btn-red {
+  @apply nb-btn bg-nb-red text-white;
+}
+@utility nb-btn-green {
+  @apply nb-btn bg-nb-green text-nb-ink;
+}
+@utility nb-btn-ghost {
+  @apply inline-flex items-center gap-2 px-3 py-2 bg-transparent border-[2.5px] border-transparent
            font-bold text-sm text-nb-ink/75
            hover:border-nb-ink hover:bg-nb-paper transition-all;
-  }
-  .nb-btn-xs {
-    @apply inline-flex items-center px-2.5 py-1 bg-nb-paper border-[2px] border-nb-ink
+}
+@utility nb-btn-xs {
+  @apply inline-flex items-center px-2.5 py-1 bg-nb-paper border-2 border-nb-ink
            text-[11px] font-bold
            transition-all duration-100
            hover:-translate-y-0.5 hover:shadow-nb-sm active:translate-x-0.5 active:translate-y-0.5 active:shadow-none;
-  }
-
+}
+@utility nb-chip {
   /* ---- Chips / Badges ---- */
-  .nb-chip {
-    @apply inline-flex items-center px-2.5 py-1 bg-nb-paper border-[2px] border-nb-ink
+  @apply inline-flex items-center px-2.5 py-1 bg-nb-paper border-2 border-nb-ink
            text-xs font-bold;
-  }
-  .nb-chip-yellow {
-    @apply nb-chip bg-nb-yellow;
-  }
-  .nb-chip-red {
-    @apply nb-chip bg-nb-red text-white;
-  }
-  .nb-chip-green {
-    @apply nb-chip bg-nb-green text-nb-ink;
-  }
-  .nb-chip-ink {
-    @apply nb-chip bg-nb-ink text-white;
-  }
-
+}
+@utility nb-chip-yellow {
+  @apply nb-chip bg-nb-yellow;
+}
+@utility nb-chip-red {
+  @apply nb-chip bg-nb-red text-white;
+}
+@utility nb-chip-green {
+  @apply nb-chip bg-nb-green text-nb-ink;
+}
+@utility nb-chip-ink {
+  @apply nb-chip bg-nb-ink text-white;
+}
+@utility nb-eyebrow {
   /* ---- Type ---- */
-  .nb-eyebrow {
-    @apply font-nbMono text-[11px] font-bold uppercase tracking-[0.25em] text-nb-ink/60;
-  }
-  .nb-h1 {
-    @apply font-nbSerif text-3xl md:text-4xl font-black leading-[1.1];
-  }
-  .nb-h2 {
-    @apply font-nbSerif text-2xl font-black;
-  }
-
+  @apply font-nbMono text-[11px] font-bold uppercase tracking-[0.25em] text-nb-ink/60;
+}
+@utility nb-h1 {
+  @apply font-nbSerif text-3xl md:text-4xl font-black leading-[1.1];
+}
+@utility nb-h2 {
+  @apply font-nbSerif text-2xl font-black;
+}
+@utility nb-stamp {
   /* ---- Stamp ---- */
-  .nb-stamp {
-    @apply inline-flex items-center gap-2 px-3 py-1 bg-nb-yellow border-[2.5px] border-nb-ink
+  @apply inline-flex items-center gap-2 px-3 py-1 bg-nb-yellow border-[2.5px] border-nb-ink
            font-nbMono text-[11px] font-bold uppercase tracking-[0.2em];
-    transform: rotate(-2deg);
-  }
-
+  transform: rotate(-2deg);
+}
+@utility nb-label {
   /* ---- Form primitives ---- */
-  .nb-label {
-    @apply block font-nbMono text-[11px] font-bold uppercase tracking-[0.2em] text-nb-ink/70 mb-2;
-  }
-  .nb-input {
-    @apply w-full bg-nb-paper border-[2.5px] border-nb-ink px-3 py-2.5 text-sm font-medium text-nb-ink
-           placeholder:text-nb-ink/40 focus:outline-none focus:shadow-nb-sm focus:-translate-y-0.5
+  @apply block font-nbMono text-[11px] font-bold uppercase tracking-[0.2em] text-nb-ink/70 mb-2;
+}
+@utility nb-input {
+  @apply w-full bg-nb-paper border-[2.5px] border-nb-ink px-3 py-2.5 text-sm font-medium text-nb-ink
+           placeholder:text-nb-ink/40 focus:outline-hidden focus:shadow-nb-sm focus:-translate-y-0.5
            transition-all duration-100;
-  }
-  .nb-select {
-    @apply nb-input appearance-none pr-9 bg-[url('data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2012%2012%22%3E%3Cpath%20fill%3D%22%230F0F0F%22%20d%3D%22M2%204h8L6%209z%22/%3E%3C/svg%3E')] bg-no-repeat bg-[right_0.75rem_center];
-  }
-  .nb-textarea {
-    @apply nb-input min-h-[96px] leading-6;
-  }
-  .nb-fieldset {
-    @apply grid gap-4;
-  }
-
+}
+@utility nb-select {
+  @apply nb-input appearance-none pr-9 bg-[url('data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2012%2012%22%3E%3Cpath%20fill%3D%22%230F0F0F%22%20d%3D%22M2%204h8L6%209z%22/%3E%3C/svg%3E')] bg-no-repeat bg-position-[right_0.75rem_center];
+}
+@utility nb-textarea {
+  @apply nb-input min-h-[96px] leading-6;
+}
+@utility nb-fieldset {
+  @apply grid gap-4;
+}
+@utility nb-table-wrap {
   /* ---- Table ---- */
-  .nb-table-wrap {
-    @apply overflow-x-auto border-[3px] border-nb-ink bg-nb-paper shadow-nb;
-  }
-  .nb-table {
-    @apply min-w-full text-left text-sm;
-  }
-  .nb-table thead {
+  @apply overflow-x-auto border-[3px] border-nb-ink bg-nb-paper shadow-nb;
+}
+@utility nb-table {
+  @apply min-w-full text-left text-sm;
+  & thead {
     @apply bg-nb-yellow;
   }
-  .nb-table thead th {
+  & thead th {
     @apply px-4 py-3 font-nbMono text-[11px] font-bold uppercase tracking-[0.2em] text-nb-ink
            border-b-[3px] border-nb-ink;
   }
-  .nb-table tbody td {
-    @apply px-4 py-3 align-top border-b-[2px] border-nb-ink/15;
+  & tbody td {
+    @apply px-4 py-3 align-top border-b-2 border-nb-ink/15;
   }
-  .nb-table tbody tr:last-child td {
+  & tbody tr:last-child td {
     @apply border-b-0;
   }
-  .nb-table tbody tr:hover {
+  & tbody tr:hover {
     @apply bg-nb-bg2;
   }
-
+}
+@utility nb-row {
   /* ---- Row card (alt to table for responsive) ---- */
-  .nb-row {
-    @apply bg-nb-paper border-[2.5px] border-nb-ink px-4 py-4;
-  }
-
+  @apply bg-nb-paper border-[2.5px] border-nb-ink px-4 py-4;
+}
+@utility nb-empty {
   /* ---- Empty state ---- */
-  .nb-empty {
-    @apply border-[2.5px] border-dashed border-nb-ink/40 px-4 py-8 text-sm text-nb-ink/60 font-bold text-center;
-  }
-
+  @apply border-[2.5px] border-dashed border-nb-ink/40 px-4 py-8 text-sm text-nb-ink/60 font-bold text-center;
+}
+@utility nb-kpi {
   /* ---- KPI tile ---- */
-  .nb-kpi {
-    @apply nb-card-sm px-5 py-4;
-  }
-
+  @apply nb-card-sm px-5 py-4;
+}
+@utility nb-divider {
   /* ---- Divider under section heads ---- */
-  .nb-divider {
-    @apply border-b-[3px] border-nb-ink pb-4;
-  }
-
+  @apply border-b-[3px] border-nb-ink pb-4;
+}
+@utility nb-section-head {
   /* ---- Section header block (eyebrow + title + optional action) ---- */
-  .nb-section-head {
-    @apply flex flex-col gap-2 md:flex-row md:items-end md:justify-between nb-divider;
-  }
-
+  @apply flex flex-col gap-2 md:flex-row md:items-end md:justify-between nb-divider;
+}
+@utility nb-tab {
   /* ---- Tabs (Link-based) ---- */
-  .nb-tab {
-    @apply inline-flex items-center px-4 py-2 bg-nb-paper border-[2.5px] border-nb-ink
+  @apply inline-flex items-center px-4 py-2 bg-nb-paper border-[2.5px] border-nb-ink
            font-nbMono text-[11px] font-bold uppercase tracking-[0.2em] text-nb-ink/75
            transition-all duration-100 hover:-translate-y-0.5 hover:shadow-nb-sm;
-  }
-  .nb-tab-active {
-    @apply nb-tab bg-nb-ink text-white shadow-nb-sm;
-  }
-
+}
+@utility nb-tab-active {
+  @apply nb-tab bg-nb-ink text-white shadow-nb-sm;
+}
+@utility nb-details {
   /* ---- Details (collapsible item cards) ---- */
-  .nb-details {
-    @apply bg-nb-paper border-[2.5px] border-nb-ink;
-  }
-  .nb-details-summary {
-    @apply flex cursor-pointer list-none flex-wrap items-center justify-between gap-3 px-5 py-4;
-  }
-  .nb-details[open] > .nb-details-summary {
+  @apply bg-nb-paper border-[2.5px] border-nb-ink;
+  &[open] > .nb-details-summary {
     @apply bg-nb-bg2;
   }
-
+}
+@utility nb-details-summary {
+  @apply flex cursor-pointer list-none flex-wrap items-center justify-between gap-3 px-5 py-4;
+  .nb-details[open] > & {
+    @apply bg-nb-bg2;
+  }
+}
+@utility nb-stat {
   /* ---- Stat tile ---- */
-  .nb-stat {
-    @apply nb-card-sm p-4;
-  }
-  .nb-stat-eyebrow {
-    @apply font-nbMono text-[11px] font-bold uppercase tracking-[0.2em];
-  }
-  .nb-stat-value {
-    @apply mt-2 font-nbSerif text-4xl font-black leading-none text-center;
-  }
-
+  @apply nb-card-sm p-4;
+}
+@utility nb-stat-eyebrow {
+  @apply font-nbMono text-[11px] font-bold uppercase tracking-[0.2em];
+}
+@utility nb-stat-value {
+  @apply mt-2 font-nbSerif text-4xl font-black leading-none text-center;
+}
+@utility nb-check-card {
   /* ---- Check / Radio cards ---- */
-  .nb-check-card {
-    @apply flex items-start gap-3 bg-white border-[2px] border-nb-ink px-3 py-3 text-sm;
-  }
-  .nb-check {
-    @apply h-4 w-4 accent-nb-ink;
-  }
-  .nb-radio {
-    @apply h-4 w-4 accent-nb-ink;
+  @apply flex items-start gap-3 bg-white border-2 border-nb-ink px-3 py-3 text-sm;
+}
+@utility nb-check {
+  @apply h-4 w-4 accent-nb-ink;
+}
+@utility nb-radio {
+  @apply h-4 w-4 accent-nb-ink;
+}
+@utility nb-help {
+  /* ---- Inline help text under an input ---- */
+  @apply mt-1 text-[11px] leading-5 font-bold font-nbMono text-nb-ink/55 uppercase tracking-[0.18em];
+}
+
+@layer utilities {
+  :root {
+    color-scheme: light;
+    --nb-grid: rgba(15, 15, 15, 0.06);
   }
 
-  /* ---- Inline help text under an input ---- */
-  .nb-help {
-    @apply mt-1 text-[11px] leading-5 font-bold font-nbMono text-nb-ink/55 uppercase tracking-[0.18em];
+  body {
+    @apply bg-nb-bg text-nb-ink;
+    background-image:
+      linear-gradient(var(--nb-grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--nb-grid) 1px, transparent 1px);
+    background-size: 32px 32px;
+    min-height: 100vh;
   }
+
+  a {
+    @apply text-inherit no-underline;
+  }
+
+  button:disabled {
+    @apply cursor-not-allowed opacity-60;
+  }
+
+  /* ========================================
+   Neo Brutalism 元件 utility classes
+   這些只套在新設計的頁面；舊頁面不受影響
+   ======================================== */
 }
