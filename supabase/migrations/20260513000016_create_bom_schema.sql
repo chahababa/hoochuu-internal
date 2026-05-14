@@ -1,4 +1,4 @@
--- 20260513_000016_create_bom_schema.sql
+-- 20260513000016_create_bom_schema.sql
 -- 建立 bom schema 作為 BOM 系統合併的容器（hoochuu-internal merge, Phase 0）。
 -- 對應 plan: hoochuu-internal-docs/merge-plan-curried-brewing-fog.md §B Phase 0 步驟 6-7。
 --

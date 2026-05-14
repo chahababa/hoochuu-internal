@@ -1,6 +1,32 @@
 # Changelog
 
-## 2026-05-13 Latest
+## 2026-05-14 Latest
+
+### Migration tracking 重建 + 檔名標準化（Phase 1 前置）
+
+**背景**：SCS production 的 `supabase_migrations.schema_migrations` 表完全空白 — 早期 schema 是用 Supabase Dashboard SQL Editor 直接跑出來的，沒走 `supabase db push` 流程，導致 CLI 認為這些 migration 都「未套用」。直接 `db push` 會撞 `table already exists`，擋住 Phase 1 開工。
+
+**檔名格式問題**：先前的 migration 檔名格式 `YYYYMMDD_NNNNNN_name.sql`（兩段式）不符合 Supabase CLI 標準。CLI 的解析 regex 是 `^([0-9]+)_(.*)\.sql$`，capture group 1 在第一個 `_` 就停 — 例如 `20260408_000001_mvp_schema.sql` 會被解析成 `version=20260408`，4 支同日的檔案會 collision。
+
+**動作**：
+
+- 16 支 migration 檔案 `git mv` rename 為標準 14-digit 格式：
+  - `20260408_000001_mvp_schema.sql` → `20260408000001_mvp_schema.sql`
+  - ...（16 支同模式，date + 6-digit seq 黏起來）
+  - `20260513_000016_create_bom_schema.sql` → `20260513000016_create_bom_schema.sql`
+- 改 `20260513000016_create_bom_schema.sql` 內第 1 行檔名 comment。
+- 8 個 docs（`CHANGELOG.md` / `DEPLOYMENT.md` / `IMPLEMENTATION_RETROSPECTIVE.md` / `OPEN_ITEMS.md` / `PRODUCTION_HANDOFF_TEMPLATE.md` / `PROJECT_STATUS.md` / `README.md` / `RELEASE_NOTES.md`）的舊檔名引用全面替換為新檔名（含此 CHANGELOG 歷史段落，取搜尋一致）。
+- 新增 `supabase/scripts/restore-migration-tracking.sql`：補登 16 筆 tracking 紀錄到 `supabase_migrations.schema_migrations`，採 `ON CONFLICT (version) DO NOTHING` 安全可重跑。
+
+**Production 套用方式**：在 Supabase Dashboard `SQL Editor` 直接執行 `supabase/scripts/restore-migration-tracking.sql`。**不**走 `supabase db push`（同 `bom` schema 那次的原因）。
+
+**驗證**：跑完 SQL 後 `SELECT version, name FROM supabase_migrations.schema_migrations ORDER BY version;` 應該看到 16 筆、依時序排列。
+
+**Bonus 修正**：CHANGELOG 中一處日期 typo（`20260410_000010_add_menu_observation_note` 實際檔案是 `20260423_…`）一併修正。
+
+**為何不影響 prod runtime**：純 doc + 檔名變更，無 src/ 程式碼變動；SQL 只動 `supabase_migrations` schema 的 metadata 表，不動實際資料表。員工日常使用不會感受到任何變化。
+
+## 2026-05-13
 
 ### Next.js 16 + React 19.2 升級
 
@@ -23,9 +49,9 @@
 ### 建立 BOM schema 空殼（合併準備）
 
 - `feat(phase-0): scaffold bom schema for upcoming BOM system merge`（commit `1b2f1df`）
-  - 新增 migration `supabase/migrations/20260513_000016_create_bom_schema.sql`：`create schema if not exists bom;` + `grant usage on schema bom to anon, authenticated, service_role;` + 一行 `comment on schema bom`。
+  - 新增 migration `supabase/migrations/20260513000016_create_bom_schema.sql`：`create schema if not exists bom;` + `grant usage on schema bom to anon, authenticated, service_role;` + 一行 `comment on schema bom`。
   - 純空 schema、不含任何 table / function / RLS；為日後從 `chahababa/Hoochuu-Bom-System` 合併 17 張表預留命名空間。
-  - 編號用 `_000016`，因為 PR #19 的 `20260505_000015_normalize_inspection_item_store_names.sql` 已佔用 `_000015`。
+  - 編號用 `_000016`，因為 PR #19 的 `20260505000015_normalize_inspection_item_store_names.sql` 已佔用 `_000015`。
 
 ### middleware → proxy 改名
 
@@ -46,7 +72,7 @@
 
 ### 部署注意
 
-- Migration 套用：`supabase/migrations/20260513_000016_create_bom_schema.sql`。本支 migration 因 SCS production migration tracking 缺口（見下方「發現的延伸議題」）改為透過 Supabase SQL Editor 直接跑 idempotent SQL 套用，不走 `supabase db push`。
+- Migration 套用：`supabase/migrations/20260513000016_create_bom_schema.sql`。本支 migration 因 SCS production migration tracking 缺口（見下方「發現的延伸議題」）改為透過 Supabase SQL Editor 直接跑 idempotent SQL 套用，不走 `supabase db push`。
 - 不需要新增 Zeabur env。
 
 ### 驗證
@@ -112,7 +138,7 @@
 
 ### 部署注意
 
-- 需要套用 Supabase migration：`20260505_000015_normalize_inspection_item_store_names.sql`。
+- 需要套用 Supabase migration：`20260505000015_normalize_inspection_item_store_names.sql`。
 - 若你曾經在後台手動加過含類似舊地點名稱的題目（例如自行新增「桃園XX店…」），這次 migration 不會自動處理 — 部署後請到設定 → 題目管理頁面檢查 / 改名。
 
 ---
@@ -127,7 +153,7 @@
 
 ### 部署注意
 
-- 需要套用 Supabase migration：`20260505_000014_improvement_task_resolution.sql`。
+- 需要套用 Supabase migration：`20260505000014_improvement_task_resolution.sql`。
 - 8MB 是 Next.js Server Action 預設的 body 上限，店長一次上傳的所有照片總和需控制在 8MB 內，UI 已加上提示文字。
 
 ### 驗證
@@ -174,7 +200,7 @@
 
 ### 部署注意
 
-- 需要套用 Supabase migration：`20260504_000013_release_announcement_sources.sql`。
+- 需要套用 Supabase migration：`20260504000013_release_announcement_sources.sql`。
 - 需要新增 Zeabur env：`RELEASE_ANNOUNCEMENT_WEBHOOK_SECRET`（只作為手動 smoke test / fallback 使用）。
 - GitHub Actions 使用 OIDC 驗證，不需要新增 GitHub repository secret。
 - 可選 GitHub Actions repository variable：`RELEASE_ANNOUNCEMENT_ENDPOINT`；未設定時預設呼叫 `https://stores-checking-system.zeabur.app/api/release-announcements/auto`。
@@ -202,7 +228,7 @@
 
 ### 部署注意
 
-- 需要套用 Supabase migration：`20260504_000012_release_announcements.sql`。
+- 需要套用 Supabase migration：`20260504000012_release_announcements.sql`。
 - 不需要新增 Zeabur env。
 
 ### 驗證
@@ -229,7 +255,7 @@
 
 ### 部署注意
 
-- 需要套用 Supabase migration：`20260504_000011_improvement_task_notion_sync.sql`。
+- 需要套用 Supabase migration：`20260504000011_improvement_task_notion_sync.sql`。
 - Zeabur/production 需設定 `NOTION_API_KEY`；`NOTION_IMPROVEMENT_TASKS_DATABASE_ID` 可選，未設定時預設使用既有 `各店待辦事項檢核(DB)` database id。
 - 若未設定 `NOTION_API_KEY`，系統仍可更新改善任務，但會略過 Notion 同步。
 
@@ -250,7 +276,7 @@
 
 - `docs: refresh project status and deployment docs`
   - 更新 README / deployment / production handoff / open items / notification spec，讓文件反映目前 repo 已在 GitHub、production 已部署到 Zeabur、email 通知已實作但需 Resend env vars 啟用。
-  - 補齊到 `20260410_000010_add_menu_observation_note.sql` 的 migration 清單，移除只列到 `20260410_000005_localize_seed_content.sql` 的舊資訊。
+  - 補齊到 `20260423000010_add_menu_observation_note.sql` 的 migration 清單，移除只列到 `20260410000005_localize_seed_content.sql` 的舊資訊。
   - 移除「GitHub CLI token invalid、尚未 push repo」作為當前 blocker 的過時描述；保留為歷史狀態。
 
 ### 部署注意
@@ -450,7 +476,7 @@
 
 - `77a5969` `fix(inspection): expire negative photo-column cache after 60s`
   - 使用者在 production 送出含照片的巡店時，又看到一次 `An error occurred in the Server Components render. The specific message is omitted in production builds...`，狀況跟 04-23 那次很像但根因不同。
-  - 04-23 那次是 `observation_note` 欄位沒套；這次是 **`photo_url` 欄位**（migration `20260412_000009_menu_item_photos.sql`）也從來沒在 production DB 套上。`supportsMenuItemPhotos()` 在 `inspection_menu_items` 找不到 `photo_url` → 直接 throw 中文訊息「餐點抽查照片功能需要先套用最新的資料庫 migration。」→ Next.js 在 production 把它遮成通用文字。
+  - 04-23 那次是 `observation_note` 欄位沒套；這次是 **`photo_url` 欄位**（migration `20260412000009_menu_item_photos.sql`）也從來沒在 production DB 套上。`supportsMenuItemPhotos()` 在 `inspection_menu_items` 找不到 `photo_url` → 直接 throw 中文訊息「餐點抽查照片功能需要先套用最新的資料庫 migration。」→ Next.js 在 production 把它遮成通用文字。
   - 在 production Supabase SQL Editor 直接補上：`alter table public.inspection_menu_items add column if not exists photo_url text;`（idempotent）。
   - 但補完欄位後立刻踩到第二顆雷：`supportsMenuItemPhotos()` 用 module-level `let` 把「欄位不存在」的判斷 cache 在 Node process 裡，process 不重啟永遠不會重查。所以即使 DB 已經修好、第一個 instance 仍會繼續 throw。手動 Restart 過 Zeabur service 才解。
   - 這個 commit 把負向 cache 加上 **60 秒 TTL**：日後再有「migration 在 production 補完但 instance 沒重啟」情境，最多卡 1 分鐘自我修復、不必人工 restart。正向 cache 仍永久（欄位不會自己消失）。
@@ -467,7 +493,7 @@
 ### 部署注意
 
 - **這次需要先在 production Supabase 執行**：`alter table public.inspection_menu_items add column if not exists photo_url text;`（已於 04-27 執行完畢，再次部署無副作用，因為 `if not exists`）。
-- 不需要新 migration 檔案 —— 既有的 `20260412_000009_menu_item_photos.sql` 內容跟我們補的這行 SQL 完全相同，只是 production DB 之前沒跑過。
+- 不需要新 migration 檔案 —— 既有的 `20260412000009_menu_item_photos.sql` 內容跟我們補的這行 SQL 完全相同，只是 production DB 之前沒跑過。
 - 程式 push 到 `main` 後 Zeabur 自動 build + deploy（約 100 秒）。
 
 ### 驗證
@@ -512,7 +538,7 @@
 - `5df0ced` `fix: add observation note column for menu item inspections`
   - 主管 / 經理在餐點抽查區的「重量」欄位輸入中文觀察描述（例如外觀、製餐過程備註）時，會觸發 Postgres 無法把中文轉成 `numeric(8, 2)`，整筆巡店送出失敗。
   - Production 下 Next.js 會把 server action 錯誤替換成通用訊息：`An error occurred in the Server Components render. The specific message is omitted in production builds...`，使用者完全看不到真正原因。
-  - 新增 migration `20260423_000010_add_menu_observation_note.sql`，在 `inspection_menu_items` 加上 `observation_note text`。
+  - 新增 migration `20260423000010_add_menu_observation_note.sql`，在 `inspection_menu_items` 加上 `observation_note text`。
   - 巡店表單新增「餐點觀察 / 製餐過程備註」textarea（內用、外帶各一個）。
   - 重量欄位改為 `type="number" inputMode="decimal"`，瀏覽器層直接擋掉非數字輸入，避免同樣的狀況再發生。
   - 巡店明細頁、單筆巡店 CSV 匯出都同步帶出新的觀察備註欄位。
@@ -524,7 +550,7 @@
 - `npm run test`
 
 ### 部署注意
-- 需要先在 Supabase SQL Editor 執行 `20260423_000010_add_menu_observation_note.sql`，**再**讓新版前端部署上線。順序反過來會讓巡店明細頁讀取 `observation_note` 欄位失敗。
+- 需要先在 Supabase SQL Editor 執行 `20260423000010_add_menu_observation_note.sql`，**再**讓新版前端部署上線。順序反過來會讓巡店明細頁讀取 `observation_note` 欄位失敗。
 - 既有資料不受影響：`observation_note` 預設為 `null`，且 `portion_weight` 欄位型別維持不變。
 
 ## 2026-04-13
@@ -796,7 +822,7 @@ Stores Checking System 的部署、修復與產品體驗調整紀錄。
 ## 2026-04-11
 
 ### 工作站與排班邏輯
-- 新增 migration：`20260411_000008_workstations_and_shift_assignment.sql`
+- 新增 migration：`20260411000008_workstations_and_shift_assignment.sql`
   - 建立 `workstations` 資料表
   - 預設建立三個通用工作站：`內場 / 外場 / 櫃台`
   - `staff_members` 新增 `default_workstation_id`
@@ -855,7 +881,7 @@ Stores Checking System 的部署、修復與產品體驗調整紀錄。
   - 加入 Playwright storage state 產生流程
 
 ### 資料更新
-- 執行 `20260410_000006_fix_store_names.sql`
+- 執行 `20260410000006_fix_store_names.sql`
   - 將 `stores` 內容修正為：
     - `store_1 -> 1店`
     - `store_2 -> 2店`

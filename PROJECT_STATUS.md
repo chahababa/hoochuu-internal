@@ -40,7 +40,7 @@ Run the full gate before merging code changes or deploying manually.
 
 - `supabase/seed.sql` is localized and currently seeds Chinese store, category, and item names.
 - Seeded owner account is `chahababa@gmail.com`.
-- Current migration set has 10 files, from `20260408_000001_mvp_schema.sql` through `20260423_000010_add_menu_observation_note.sql`.
+- Current migration set has 10 files, from `20260408000001_mvp_schema.sql` through `20260423000010_add_menu_observation_note.sql`.
 
 ## Current External / Operational Notes
 

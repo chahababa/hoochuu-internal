@@ -20,11 +20,11 @@ NEXT_PUBLIC_SITE_URL=https://stores-checking-system.zeabur.app
 
 Apply SQL files in this order:
 
-1. `supabase/migrations/20260408_000001_mvp_schema.sql`
-2. `supabase/migrations/20260408_000002_inspections.sql`
-3. `supabase/migrations/20260408_000003_inspection_photos.sql`
-4. `supabase/migrations/20260408_000004_audit_logs.sql`
-5. `supabase/migrations/20260410_000005_localize_seed_content.sql`
+1. `supabase/migrations/20260408000001_mvp_schema.sql`
+2. `supabase/migrations/20260408000002_inspections.sql`
+3. `supabase/migrations/20260408000003_inspection_photos.sql`
+4. `supabase/migrations/20260408000004_audit_logs.sql`
+5. `supabase/migrations/20260410000005_localize_seed_content.sql`
 6. `supabase/migrations/` 下所有檔案按檔名排序套用（Supabase CLI 的標準行為）。
 7. `supabase/seed.sql`
 
