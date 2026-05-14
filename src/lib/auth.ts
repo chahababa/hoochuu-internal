@@ -16,6 +16,8 @@ export type UserProfile = {
   store_id: string | null;
   is_active: boolean;
   line_user_id: string | null;
+  can_access_bom: boolean;
+  can_access_inspection: boolean;
   impersonating?: {
     realRole: UserRole;
     realStoreId: string | null;
@@ -35,7 +37,9 @@ export async function getCurrentUserProfile(): Promise<UserProfile | null> {
   const admin = createAdminClient();
   const { data, error } = await admin
     .from("users")
-    .select("id, email, name, role, store_id, is_active, line_user_id")
+    .select(
+      "id, email, name, role, store_id, is_active, line_user_id, can_access_bom, can_access_inspection",
+    )
     .eq("email", user.email)
     .maybeSingle();
 
