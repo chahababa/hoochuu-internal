@@ -12,6 +12,1072 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.5"
   }
+  bom: {
+    Tables: {
+      alerts: {
+        Row: {
+          alert_type: Database["bom"]["Enums"]["alert_type"]
+          baseline_snapshot: Json | null
+          context_data: Json | null
+          created_at: string
+          created_by: string | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          dish_id: string | null
+          email_sent_at: string | null
+          id: string
+          is_deleted: boolean
+          product_id: string | null
+          severity: Database["bom"]["Enums"]["alert_severity"]
+          status: Database["bom"]["Enums"]["alert_status"]
+          store_id: string | null
+          threshold_value: number
+          trigger_value: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          alert_type: Database["bom"]["Enums"]["alert_type"]
+          baseline_snapshot?: Json | null
+          context_data?: Json | null
+          created_at?: string
+          created_by?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          dish_id?: string | null
+          email_sent_at?: string | null
+          id?: string
+          is_deleted?: boolean
+          product_id?: string | null
+          severity: Database["bom"]["Enums"]["alert_severity"]
+          status?: Database["bom"]["Enums"]["alert_status"]
+          store_id?: string | null
+          threshold_value: number
+          trigger_value: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          alert_type?: Database["bom"]["Enums"]["alert_type"]
+          baseline_snapshot?: Json | null
+          context_data?: Json | null
+          created_at?: string
+          created_by?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          dish_id?: string | null
+          email_sent_at?: string | null
+          id?: string
+          is_deleted?: boolean
+          product_id?: string | null
+          severity?: Database["bom"]["Enums"]["alert_severity"]
+          status?: Database["bom"]["Enums"]["alert_status"]
+          store_id?: string | null
+          threshold_value?: number
+          trigger_value?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "alerts_dish_id_fkey"
+            columns: ["dish_id"]
+            isOneToOne: false
+            referencedRelation: "dishes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "alerts_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      backup_history: {
+        Row: {
+          actor_id: string | null
+          created_at: string
+          error_message: string | null
+          id: string
+          metadata: Json | null
+          object_key: string | null
+          size_bytes: number | null
+          status: string
+          target: string
+          triggered_by: string
+        }
+        Insert: {
+          actor_id?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          metadata?: Json | null
+          object_key?: string | null
+          size_bytes?: number | null
+          status: string
+          target: string
+          triggered_by: string
+        }
+        Update: {
+          actor_id?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          metadata?: Json | null
+          object_key?: string | null
+          size_bytes?: number | null
+          status?: string
+          target?: string
+          triggered_by?: string
+        }
+        Relationships: []
+      }
+      cost_baselines: {
+        Row: {
+          category: string | null
+          created_at: string
+          created_by: string | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          id: string
+          is_deleted: boolean
+          name: string
+          notes: string | null
+          scope_key: string
+          target_cost_rate: number
+          updated_at: string
+          updated_by: string | null
+          warning_cost_rate: number
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          created_by?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          id?: string
+          is_deleted?: boolean
+          name: string
+          notes?: string | null
+          scope_key?: string
+          target_cost_rate: number
+          updated_at?: string
+          updated_by?: string | null
+          warning_cost_rate: number
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          created_by?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          id?: string
+          is_deleted?: boolean
+          name?: string
+          notes?: string | null
+          scope_key?: string
+          target_cost_rate?: number
+          updated_at?: string
+          updated_by?: string | null
+          warning_cost_rate?: number
+        }
+        Relationships: []
+      }
+      cost_snapshots: {
+        Row: {
+          based_on_prices: Json | null
+          calculated_at: string
+          created_at: string
+          dine_in_cost: number | null
+          dine_in_rate: number | null
+          dish_id: string
+          dish_version_id: string
+          id: string
+          is_locked: boolean
+          locked_by_report_id: string | null
+          store_id: string
+          takeout_cost: number | null
+          takeout_rate: number | null
+        }
+        Insert: {
+          based_on_prices?: Json | null
+          calculated_at?: string
+          created_at?: string
+          dine_in_cost?: number | null
+          dine_in_rate?: number | null
+          dish_id: string
+          dish_version_id: string
+          id?: string
+          is_locked?: boolean
+          locked_by_report_id?: string | null
+          store_id: string
+          takeout_cost?: number | null
+          takeout_rate?: number | null
+        }
+        Update: {
+          based_on_prices?: Json | null
+          calculated_at?: string
+          created_at?: string
+          dine_in_cost?: number | null
+          dine_in_rate?: number | null
+          dish_id?: string
+          dish_version_id?: string
+          id?: string
+          is_locked?: boolean
+          locked_by_report_id?: string | null
+          store_id?: string
+          takeout_cost?: number | null
+          takeout_rate?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cost_snapshots_dish_id_fkey"
+            columns: ["dish_id"]
+            isOneToOne: false
+            referencedRelation: "dishes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cost_snapshots_dish_version_id_fkey"
+            columns: ["dish_version_id"]
+            isOneToOne: false
+            referencedRelation: "dish_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      current_prices: {
+        Row: {
+          based_on_purchase_ids: string[]
+          calculated_at: string
+          product_id: string
+          scope_key: string
+          weighted_avg_price: number
+        }
+        Insert: {
+          based_on_purchase_ids: string[]
+          calculated_at?: string
+          product_id: string
+          scope_key: string
+          weighted_avg_price: number
+        }
+        Update: {
+          based_on_purchase_ids?: string[]
+          calculated_at?: string
+          product_id?: string
+          scope_key?: string
+          weighted_avg_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "current_prices_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dish_versions: {
+        Row: {
+          bom_items: Json
+          created_at: string
+          created_by: string | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          dish_id: string
+          effective_from: string
+          id: string
+          is_deleted: boolean
+          notes: string | null
+          takeout_pack_combo_id: string | null
+          updated_at: string
+          updated_by: string | null
+          version_number: number
+        }
+        Insert: {
+          bom_items: Json
+          created_at?: string
+          created_by?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          dish_id: string
+          effective_from?: string
+          id?: string
+          is_deleted?: boolean
+          notes?: string | null
+          takeout_pack_combo_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          version_number: number
+        }
+        Update: {
+          bom_items?: Json
+          created_at?: string
+          created_by?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          dish_id?: string
+          effective_from?: string
+          id?: string
+          is_deleted?: boolean
+          notes?: string | null
+          takeout_pack_combo_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dish_versions_dish_id_fkey"
+            columns: ["dish_id"]
+            isOneToOne: false
+            referencedRelation: "dishes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dish_versions_takeout_pack_combo_id_fkey"
+            columns: ["takeout_pack_combo_id"]
+            isOneToOne: false
+            referencedRelation: "takeout_pack_combos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dishes: {
+        Row: {
+          category: string | null
+          cost_baseline_id: string | null
+          created_at: string
+          created_by: string | null
+          current_version_id: string | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          id: string
+          is_deleted: boolean
+          name: string
+          price: number | null
+          service_mode: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          category?: string | null
+          cost_baseline_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          current_version_id?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          id?: string
+          is_deleted?: boolean
+          name: string
+          price?: number | null
+          service_mode: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          category?: string | null
+          cost_baseline_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          current_version_id?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          id?: string
+          is_deleted?: boolean
+          name?: string
+          price?: number | null
+          service_mode?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_dishes_cost_baseline"
+            columns: ["cost_baseline_id"]
+            isOneToOne: false
+            referencedRelation: "cost_baselines"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_dishes_current_version"
+            columns: ["current_version_id"]
+            isOneToOne: false
+            referencedRelation: "dish_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      import_errors: {
+        Row: {
+          created_at: string
+          error_message: string
+          id: string
+          import_batch_id: string
+          raw_data: Json | null
+          row_number: number | null
+          sheet_name: string | null
+        }
+        Insert: {
+          created_at?: string
+          error_message: string
+          id?: string
+          import_batch_id: string
+          raw_data?: Json | null
+          row_number?: number | null
+          sheet_name?: string | null
+        }
+        Update: {
+          created_at?: string
+          error_message?: string
+          id?: string
+          import_batch_id?: string
+          raw_data?: Json | null
+          row_number?: number | null
+          sheet_name?: string | null
+        }
+        Relationships: []
+      }
+      ingredients: {
+        Row: {
+          category: string
+          created_at: string
+          created_by: string | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          id: string
+          is_deleted: boolean
+          merged_into_id: string | null
+          name: string
+          status: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          created_by?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          id?: string
+          is_deleted?: boolean
+          merged_into_id?: string | null
+          name: string
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          id?: string
+          is_deleted?: boolean
+          merged_into_id?: string | null
+          name?: string
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ingredients_merged_into_id_fkey"
+            columns: ["merged_into_id"]
+            isOneToOne: false
+            referencedRelation: "ingredients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      monthly_lock_audit: {
+        Row: {
+          actor_id: string | null
+          created_at: string
+          event_type: Database["bom"]["Enums"]["monthly_lock_event_type"]
+          id: string
+          metadata: Json | null
+          month: number
+          reason: string | null
+          year: number
+        }
+        Insert: {
+          actor_id?: string | null
+          created_at?: string
+          event_type: Database["bom"]["Enums"]["monthly_lock_event_type"]
+          id?: string
+          metadata?: Json | null
+          month: number
+          reason?: string | null
+          year: number
+        }
+        Update: {
+          actor_id?: string | null
+          created_at?: string
+          event_type?: Database["bom"]["Enums"]["monthly_lock_event_type"]
+          id?: string
+          metadata?: Json | null
+          month?: number
+          reason?: string | null
+          year?: number
+        }
+        Relationships: []
+      }
+      monthly_locks: {
+        Row: {
+          last_unlock_reason: string | null
+          last_unlocked_at: string | null
+          last_unlocked_by: string | null
+          locked_at: string
+          locked_by: string | null
+          month: number
+          status: Database["bom"]["Enums"]["monthly_lock_status"]
+          year: number
+        }
+        Insert: {
+          last_unlock_reason?: string | null
+          last_unlocked_at?: string | null
+          last_unlocked_by?: string | null
+          locked_at?: string
+          locked_by?: string | null
+          month: number
+          status?: Database["bom"]["Enums"]["monthly_lock_status"]
+          year: number
+        }
+        Update: {
+          last_unlock_reason?: string | null
+          last_unlocked_at?: string | null
+          last_unlocked_by?: string | null
+          locked_at?: string
+          locked_by?: string | null
+          month?: number
+          status?: Database["bom"]["Enums"]["monthly_lock_status"]
+          year?: number
+        }
+        Relationships: []
+      }
+      price_change_log: {
+        Row: {
+          change_pct: number | null
+          change_reason: string
+          created_at: string
+          id: string
+          new_price: number
+          old_price: number | null
+          product_id: string
+          scope_key: string
+          triggered_by_purchase_id: string | null
+          triggered_by_user: string | null
+        }
+        Insert: {
+          change_pct?: number | null
+          change_reason: string
+          created_at?: string
+          id?: string
+          new_price: number
+          old_price?: number | null
+          product_id: string
+          scope_key: string
+          triggered_by_purchase_id?: string | null
+          triggered_by_user?: string | null
+        }
+        Update: {
+          change_pct?: number | null
+          change_reason?: string
+          created_at?: string
+          id?: string
+          new_price?: number
+          old_price?: number | null
+          product_id?: string
+          scope_key?: string
+          triggered_by_purchase_id?: string | null
+          triggered_by_user?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "price_change_log_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "price_change_log_triggered_by_purchase_id_fkey"
+            columns: ["triggered_by_purchase_id"]
+            isOneToOne: false
+            referencedRelation: "purchase_records"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      products: {
+        Row: {
+          brand: string | null
+          created_at: string
+          created_by: string | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          id: string
+          ingredient_id: string
+          is_deleted: boolean
+          merged_into_id: string | null
+          name: string
+          purchase_type: string
+          spec: string | null
+          status: string
+          unit: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          brand?: string | null
+          created_at?: string
+          created_by?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          id?: string
+          ingredient_id: string
+          is_deleted?: boolean
+          merged_into_id?: string | null
+          name: string
+          purchase_type: string
+          spec?: string | null
+          status?: string
+          unit: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          brand?: string | null
+          created_at?: string
+          created_by?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          id?: string
+          ingredient_id?: string
+          is_deleted?: boolean
+          merged_into_id?: string | null
+          name?: string
+          purchase_type?: string
+          spec?: string | null
+          status?: string
+          unit?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_ingredient_id_fkey"
+            columns: ["ingredient_id"]
+            isOneToOne: false
+            referencedRelation: "ingredients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "products_merged_into_id_fkey"
+            columns: ["merged_into_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      purchase_records: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          id: string
+          is_deleted: boolean
+          is_temporary: boolean
+          product_id: string
+          purchase_date: string
+          quantity: number
+          receipt_image_url: string | null
+          store_id: string
+          supplier: string | null
+          total_amount: number
+          unit_price: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          id?: string
+          is_deleted?: boolean
+          is_temporary?: boolean
+          product_id: string
+          purchase_date: string
+          quantity: number
+          receipt_image_url?: string | null
+          store_id: string
+          supplier?: string | null
+          total_amount: number
+          unit_price: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          id?: string
+          is_deleted?: boolean
+          is_temporary?: boolean
+          product_id?: string
+          purchase_date?: string
+          quantity?: number
+          receipt_image_url?: string | null
+          store_id?: string
+          supplier?: string | null
+          total_amount?: number
+          unit_price?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "purchase_records_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      query_audit_log: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          params: Json | null
+          resource: string
+          user_id: string
+          user_role: string
+          user_store_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          params?: Json | null
+          resource: string
+          user_id: string
+          user_role: string
+          user_store_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          params?: Json | null
+          resource?: string
+          user_id?: string
+          user_role?: string
+          user_store_id?: string | null
+        }
+        Relationships: []
+      }
+      semi_product_versions: {
+        Row: {
+          bom_items: Json
+          created_at: string
+          created_by: string | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          effective_from: string
+          id: string
+          is_deleted: boolean
+          notes: string | null
+          semi_product_id: string
+          updated_at: string
+          updated_by: string | null
+          version_number: number
+        }
+        Insert: {
+          bom_items: Json
+          created_at?: string
+          created_by?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          effective_from?: string
+          id?: string
+          is_deleted?: boolean
+          notes?: string | null
+          semi_product_id: string
+          updated_at?: string
+          updated_by?: string | null
+          version_number: number
+        }
+        Update: {
+          bom_items?: Json
+          created_at?: string
+          created_by?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          effective_from?: string
+          id?: string
+          is_deleted?: boolean
+          notes?: string | null
+          semi_product_id?: string
+          updated_at?: string
+          updated_by?: string | null
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "semi_product_versions_semi_product_id_fkey"
+            columns: ["semi_product_id"]
+            isOneToOne: false
+            referencedRelation: "semi_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      semi_products: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          current_version_id: string | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          id: string
+          is_deleted: boolean
+          name: string
+          standard_output_qty: number
+          standard_output_unit: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          current_version_id?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          id?: string
+          is_deleted?: boolean
+          name: string
+          standard_output_qty: number
+          standard_output_unit: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          current_version_id?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          id?: string
+          is_deleted?: boolean
+          name?: string
+          standard_output_qty?: number
+          standard_output_unit?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_semi_products_current_version"
+            columns: ["current_version_id"]
+            isOneToOne: false
+            referencedRelation: "semi_product_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      system_config: {
+        Row: {
+          key: string
+          updated_at: string
+          updated_by: string | null
+          value: Json
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          updated_by?: string | null
+          value: Json
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
+        }
+        Relationships: []
+      }
+      takeout_pack_combos: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          id: string
+          is_deleted: boolean
+          items: Json
+          name: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          id?: string
+          is_deleted?: boolean
+          items: Json
+          name: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          id?: string
+          is_deleted?: boolean
+          items?: Json
+          name?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      fn_auto_lock_previous_month: { Args: never; Returns: undefined }
+      fn_calc_dish_cost: {
+        Args: { p_dish_id: string; p_store_id: string }
+        Returns: undefined
+      }
+      fn_call_backup_purge: { Args: never; Returns: undefined }
+      fn_exec_restore_sql: { Args: { p_sql: string }; Returns: undefined }
+      fn_get_scope_key: {
+        Args: { p_product_id: string; p_store_id: string }
+        Returns: string
+      }
+      fn_is_month_locked:
+        | { Args: { p_date: string }; Returns: boolean }
+        | { Args: { p_ts: string }; Returns: boolean }
+      fn_lock_month: {
+        Args: { p_month: number; p_year: number }
+        Returns: undefined
+      }
+      fn_purge_query_audit_old: { Args: never; Returns: undefined }
+      fn_recalc_current_price: {
+        Args: { p_product_id: string; p_scope_key: string }
+        Returns: undefined
+      }
+      fn_record_query_audit: {
+        Args: { p_action: string; p_params: Json; p_resource: string }
+        Returns: undefined
+      }
+      fn_send_monthly_lock_notification: {
+        Args: {
+          p_action: string
+          p_actor_email: string
+          p_month: number
+          p_reason: string
+          p_year: number
+        }
+        Returns: undefined
+      }
+      fn_trigger_backup: {
+        Args: { p_target: string; p_triggered_by: string }
+        Returns: string
+      }
+      fn_trigger_recalc_costs_for_product: {
+        Args: { p_product_id: string }
+        Returns: undefined
+      }
+      fn_unlock_month: {
+        Args: { p_month: number; p_reason: string; p_year: number }
+        Returns: undefined
+      }
+      suggest_similar_ingredients: {
+        Args: { query: string }
+        Returns: {
+          category: string
+          id: string
+          name: string
+          similarity_score: number
+        }[]
+      }
+      suggest_similar_products: {
+        Args: { query: string }
+        Returns: {
+          brand: string
+          id: string
+          ingredient_id: string
+          name: string
+          similarity_score: number
+          spec: string
+        }[]
+      }
+    }
+    Enums: {
+      alert_severity: "immediate" | "weekly_digest"
+      alert_status: "open" | "acknowledged" | "resolved"
+      alert_type: "variance" | "absolute"
+      monthly_lock_event_type:
+        | "lock"
+        | "unlock"
+        | "lock_noop"
+        | "auto_lock"
+        | "system_restore"
+      monthly_lock_status: "locked" | "unlocked"
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
     Tables: {
       audit_logs: {
@@ -690,7 +1756,11 @@ export type Database = {
       }
       users: {
         Row: {
+          auth_method: string | null
+          can_access_bom: boolean
+          can_access_inspection: boolean
           created_at: string
+          display_name: string | null
           email: string
           id: string
           is_active: boolean
@@ -700,7 +1770,11 @@ export type Database = {
           store_id: string | null
         }
         Insert: {
+          auth_method?: string | null
+          can_access_bom?: boolean
+          can_access_inspection?: boolean
           created_at?: string
+          display_name?: string | null
           email: string
           id?: string
           is_active?: boolean
@@ -710,7 +1784,11 @@ export type Database = {
           store_id?: string | null
         }
         Update: {
+          auth_method?: string | null
+          can_access_bom?: boolean
+          can_access_inspection?: boolean
           created_at?: string
+          display_name?: string | null
           email?: string
           id?: string
           is_active?: boolean
@@ -734,6 +1812,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      current_user_can_access_bom: { Args: never; Returns: boolean }
       current_user_id: { Args: never; Returns: string }
       current_user_profile: {
         Args: never
@@ -777,6 +1856,8 @@ export type Database = {
         }
         Returns: number
       }
+      show_limit: { Args: never; Returns: number }
+      show_trgm: { Args: { "": string }; Returns: string[] }
     }
     Enums: {
       busyness_level: "low" | "medium" | "high"
@@ -914,6 +1995,21 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  bom: {
+    Enums: {
+      alert_severity: ["immediate", "weekly_digest"],
+      alert_status: ["open", "acknowledged", "resolved"],
+      alert_type: ["variance", "absolute"],
+      monthly_lock_event_type: [
+        "lock",
+        "unlock",
+        "lock_noop",
+        "auto_lock",
+        "system_restore",
+      ],
+      monthly_lock_status: ["locked", "unlocked"],
+    },
+  },
   public: {
     Enums: {
       busyness_level: ["low", "medium", "high"],
