@@ -46,11 +46,7 @@
 
 ### 部署注意
 
-- Migration 套用：`supabase/migrations/20260513_000016_create_bom_schema.sql`。
-- Supabase Dashboard 手動步驟（部署 / Zeabur redeploy 前必做）：
-  - Project Settings → API → Exposed schemas 加上 `bom`（SCS 沒有 `supabase/config.toml`，這步只能 Dashboard 點）。
-  - Authentication → Providers → Email 啟用 Email provider。
-  - Authentication → Users → Add user 建第一個 password 帳號，勾「Auto Confirm User」跳過 email 驗證；該 email 要對得上 `public.users.email` 且 `is_active = true`。
+- Migration 套用：`supabase/migrations/20260513_000016_create_bom_schema.sql`。本支 migration 因 SCS production migration tracking 缺口（見下方「發現的延伸議題」）改為透過 Supabase SQL Editor 直接跑 idempotent SQL 套用，不走 `supabase db push`。
 - 不需要新增 Zeabur env。
 
 ### 驗證
@@ -58,7 +54,24 @@
 - `npm run build`（Next 16 + Turbopack，compile ~2 秒）
 - `npm run typecheck`
 - `npm run test`（19 test files / 62 tests）
-- 視覺巡檢與 playwright e2e 留到 staging redeploy 後再做。
+- 本機 dev 視覺巡檢：`/login`（Google + Email/Password 並排）、`/inspection/new`（sticky 3-row nav + 表單）、`/notifications`（3 欄優先序卡）、`/settings/items`（題目 / 類別 tab）4 頁全綠。
+- Production redeploy 後首頁讀得到真實 4 店資料、Neo Brutalism 視覺完整、Phase 0.5 雙登入按鈕並排。
+- playwright e2e 仍未跑（需要互動式 Google OAuth setup），暫留。
+
+### Post-Phase-0 收尾（同日傍晚到夜間）
+
+- **GitHub repo 改名**：`Stores-checking-system` → `hoochuu-internal`（`gh repo rename` 一行解；GitHub 自動建 301 redirect、本機 `.git/config` 自動更新、Zeabur GitHub App 自動 follow source）。
+- **PR #23** `chore: update repo references after rename to hoochuu-internal`（commit `145d4d4`）：8 個檔內舊 repo 名引用全部替換為新名，含 production code `src/app/api/release-announcements/auto/route.ts` 的 OIDC `repository` claim 比對、相關 tests、`package.json` `name`、`CLAUDE.md` / `docs/NEO_BRUTALISM_HANDOFF.md` / `OPEN_ITEMS.md` / `PROJECT_STATUS.md`。Zeabur 專案標籤（`Stores-checking-System`）與服務子網域（`stores-checking-system.zeabur.app`）刻意未動。
+- **PR #24** `chore(docs): refresh CLAUDE.md after Phase 0 / 0.5 / cleanup landed`（commit `f95a1c1`）：CLAUDE.md「剩餘待辦」「部署注意（PR #22 merge 前要做完）」過時段落清除，換成 Phase 1+ 前瞻路線與 production migration tracking 缺口警告。
+- **Supabase production Dashboard 設定**（SCS project ref `owogsszmolouoqsgmwik`）：Email provider 確認已啟用、`bom` schema 加進 Exposed schemas（從 2 of 2 → 3 of 3）。第一個 password 帳號**戰術延後** — `chahababa@gmail.com` / `chahababa@hoochuu.com.tw` 都已是 Google OAuth user、Dashboard 不允許同 email 跨 provider 建立；未來真有員工要 password 登入再用測試 email 或 SQL 補 identity。
+- **本機資料夾改名**：`Stores-checking-system\` → `hoochuu-internal\`（GitHub repo / npm name / Zeabur source / 本機資料夾全層級對齊）。
+- **4 個 stale remote branches 清除**：`phase-0-framework-upgrade`、`claude/vibrant-kepler-e0527c`、`design/neo-brutalism-dashboard`、`ui/neo-brutalism`。
+- **Git tag `phase-0-complete`** → `f95a1c1`（Phase 0 + 0.5 + cleanup 全段穩定錨點）。
+
+### 發現的延伸議題（不阻塞 Phase 0、Phase 1 前必處理）
+
+- **SCS production migration tracking 缺口**：remote `supabase_migrations.schema_migrations` table 完全空白、前 15 支 migration 沒在 tracking — 表示線上 schema 是用 SQL Editor 手動跑出來的、非走 `supabase db push` 流程。直接跑 `supabase db push` 會撞「table already exists」失敗。動 Phase 1 第一支 migration 前必須處理（重建 tracking 或繼續走 SQL Editor 跑 idempotent SQL）。
+- **PR #22 release-announcement workflow 失敗**（run `25804214241`）：merge 觸發的 GitHub Actions 工作流用新 OIDC repo claim（`chahababa/hoochuu-internal`）POST 到 `/api/release-announcements/auto`，但當時 route.ts 還 hardcode 比對舊 repo 名 → 401。後續 PR #23 / #24 的工作流則 success。員工 `/notifications` 不會看到 Phase 0 升級的系統更新公告，但 Phase 0 對員工是無感升級（Tailwind v4 / Next 16 後端事），不影響使用體驗。
 
 ---
 
