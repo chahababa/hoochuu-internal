@@ -2,6 +2,31 @@
 
 ## 2026-05-14 Latest
 
+### Phase 2 PR-A：users 模組權限欄位 + can_access_bom helper
+
+合併計畫 [Phase 2 §A.2](https://github.com/chahababa/hoochuu-internal-docs/blob/main/merge-plan-curried-brewing-fog.md) 的第一步、為 Phase 2-B（BOM 17 張表 port）鋪路。
+
+**Migration `20260514000018_users_module_flags.sql`**：
+
+- `public.users` 加 4 個欄位（純 additive，預設值不破壞既有功能）：
+  - `auth_method text check in ('google','password') default 'google'`
+  - `display_name text`（BOM 模組用，與既有 `name` 分開）
+  - `can_access_bom boolean not null default false`
+  - `can_access_inspection boolean not null default true`
+- 新 helper `public.current_user_can_access_bom()` SECURITY DEFINER：
+  - 用 `current_user_id()` 而非 merge plan 寫的 `auth.uid()`（同 Phase 1-A，因為 `public.users.id ≠ auth.users.id`）
+  - 回傳 `coalesce(can_access_bom, false)`
+- Phase 2-B 的所有 BOM RLS policy 末尾會接 `AND public.current_user_can_access_bom()`，依賴本欄位 + helper
+
+**為什麼安全**：
+- 所有現存 user 自動 `auth_method='google'` / `can_access_inspection=true` / `can_access_bom=false`，跟 prod 現況一致
+- 沒有任何 SCS code path 讀新欄位（Phase 2-C/4 才開始用），TS code 完全不影響
+- Phase 0.5 雖加了 password login UI 但 prod 目前 0 個 password user，default 對所有現存 row 正確
+
+**驗證**：`npm run typecheck` clean、`npm run test` 69 全綠、`npm run lint` clean。
+
+**Production 套用**：跑 `supabase db push`（第三次走正規 CLI flow，繼續驗證 tracking 重建有效）。
+
 ### Phase 1 PR-B：Bell UI + realtime + types.ts 重生
 
 **承接 PR-A**（DB 骨幹已上 prod）。本 PR 把通知中心 bell 元件掛上 AppShell header，引入 Supabase realtime 即時收新通知。
