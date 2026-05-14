@@ -2,6 +2,68 @@
 
 ## 2026-05-14 Latest
 
+### Phase 3+4 PR-D：port BOM routes 進 `(protected)/bom/*` + `(protected)/settings/bom/*`
+
+合併計畫 Phase 4 步驟 1-2 — port BOM 21 個 routes 進 hoochuu-internal `(protected)` group，掛上 access gate layout。
+
+**結構**：
+
+```
+src/app/(protected)/
+├── bom/                                  ← NEW，含 access-gate layout
+│   ├── layout.tsx                        ← requireUser() + can_access_bom 檢查
+│   ├── baselines/{page, new, [id]/edit}
+│   ├── cost-overview/page.tsx
+│   ├── dishes/{page, [id]}
+│   ├── ingredients/{page, ingredients-client}
+│   ├── import/page.tsx
+│   ├── purchase/{page, new}
+│   ├── search/{page, compare}
+│   └── semi-products/{page, [id]}
+└── settings/bom/                         ← NEW，含 access-gate layout
+    ├── layout.tsx                        ← 同上
+    ├── audit-log/page.tsx
+    ├── backup/{page, RestoreWizard}
+    └── monthly-close/page.tsx
+```
+
+**Access-gate layout pattern**：
+```typescript
+export default async function BomLayout({ children }) {
+  const profile = await requireUser();
+  const admin = createAdminClient();
+  const { data } = await admin.from("users").select("can_access_bom").eq("id", profile.id).maybeSingle();
+  if (!data?.can_access_bom) redirect("/forbidden?reason=bom");
+  return <>{children}</>;
+}
+```
+
+權限檢查**只發生在 layout 載入時、每個 BOM 子樹一次**，子頁面不需重覆檢查。
+
+**Mechanical rewrites（subagent 套用、grep 驗證 0 漏）**：
+
+- Import paths：`@/components/ui/*` → `@/components/bom/ui/*`、`@/lib/types/*` → `@/lib/bom/types/*` 等
+- Internal route links：`/baselines` → `/bom/baselines`、`/dishes/cost-overview` → `/bom/cost-overview` 等 9 個前綴
+- `.from("<bom_table>")` → `.schema("bom").from(...)` 全套用
+- `.rpc("<bom_fn>", ...)` → `.schema("bom").rpc(...)` 全套用
+- `'area_manager'` → `'manager'`（含 UI 文字訊息）
+- 移除 BOM `<Navbar />` 引用（hoochuu-internal AppShell 已 wrap (protected) group）
+
+**Subagent 處理的 judgment calls**：
+
+1. SCS `public.stores` 沒 `is_deleted` 欄位，移除 BOM 在 `dishes/[id]` / `purchase/new` / `search/compare` 的 `.eq("is_deleted", false)` filter
+2. BOM 設定頁面（audit-log / backup / monthly-close）保留 `"use client"` 內 inline role redirect（layout 已擋 BOM 權限，這層只擋 owner-only 頁面）
+3. 5 處 `react-hooks/set-state-in-effect` 加 disable 注解（BOM on-mount fetch / dialog reset 模式）
+4. `purchase/layout.tsx`、`bom/layout.tsx` 兩個原 BOM 容器佈局為 trivial heading wrapper，不 port（用 access-gate layout 取代）
+
+**SKIP 的 BOM routes**：`auth/callback/route.ts`、`login/page.tsx`、root `layout.tsx`、root `page.tsx`（hoochuu-internal 都已有）。
+
+**Build 結果**：14 個 BOM routes 在 `/bom/*`、3 個 settings 在 `/settings/bom/*`，全部 SSR/dynamic。
+
+**驗證**：typecheck / test / lint / build 全綠（69 tests）。
+
+**接下來**：Phase 3+4e 改 AppShell 加 BOM 模組切換 + grant `can_access_bom=true` 給 owner 帳號（目前 BOM 路由還沒有任何入口點）。
+
 ### Phase 3+4 PR-C：port BOM `src/components/*` 進 `src/components/bom/*`（18 元件）
 
 合併計畫 Phase 4 步驟 3 — 把 BOM 的 18 個共用元件搬進 hoochuu-internal（19 個來源中 `shared/navbar.tsx` 不 port，hoochuu-internal 已有 AppShell）。
