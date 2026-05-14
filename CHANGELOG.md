@@ -2,6 +2,20 @@
 
 ## 2026-05-14 Latest
 
+### Phase 3+4 PR-A：regen `types.ts` 加入 `bom` schema
+
+合併計畫 [Phase 3 step 5](https://github.com/chahababa/hoochuu-internal-docs/blob/main/merge-plan-curried-brewing-fog.md) — types 重生為 Phase 3+4 BOM 程式碼 port 鋪路。
+
+`supabase gen types typescript --linked --schema public --schema bom > src/lib/supabase/types.ts`：
+
+- 931 行 → **2027 行**（多了 bom schema 全部 19 tables + 25 functions + 5 enums 的 TypeScript 型別）
+- 既有 `public` schema 型別保持完全相同（`Database['public']` shape 不變，4 個現有 import 處仍兼容）
+- 新增 `Database['bom']` namespace 可在 TS code 使用：`type Ingredient = Database['bom']['Tables']['ingredients']['Row']` 等
+
+**為什麼安全**：純 types 變更，無 runtime 行為。typecheck / test / lint 全綠 — 既有 SCS code path 不受影響。
+
+**接下來**：Phase 3+4b 開始 port BOM `src/lib/*` 進來、套上 auth/schema rewrites。
+
 ### Phase 2 PR-C：BOM storage buckets
 
 合併計畫 [Phase 2 §A.1 / §B Phase 2 step 3](https://github.com/chahababa/hoochuu-internal-docs/blob/main/merge-plan-curried-brewing-fog.md) 收尾。BOM 模組要用的兩個 storage bucket 建好。
