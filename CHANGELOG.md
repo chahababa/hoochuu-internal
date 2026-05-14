@@ -2,6 +2,43 @@
 
 ## 2026-05-14 Latest
 
+### Phase 3+4 PR-B：port BOM `src/lib/*` 進 `src/lib/bom/*`
+
+合併計畫 Phase 3 步驟 1-3 — port BOM 共用 lib（types / utils / hooks）進 hoochuu-internal，套上 schema rewrites。
+
+**新增 deps**（先前 hoochuu-internal 沒有）：
+- `clsx@^2.1.1`、`tailwind-merge@^3.6.0`：給 BOM 元件用（shadcn 風格 `cn()` helper 依賴）
+- `date-fns@^4.1.0`、`date-fns-tz@^3.2.0`：BOM 用 Asia/Taipei tz 格式化日期
+
+**升級 `src/lib/utils.ts` 的 `cn()`**：
+- 舊版：簡單 `filter(Boolean).join(" ")`
+- 新版：`twMerge(clsx(inputs))` — 處理 conditional/array/object class + 解決 Tailwind 衝突
+- 向下兼容：既有 6 個 SCS 元件 import 不需改
+
+**新檔（port 自 BOM，套 rewrites）**：
+
+| 路徑 | 來源 | Rewrites 套用 |
+|---|---|---|
+| `src/lib/bom/types/audit-log.ts` | BOM `lib/types/audit-log.ts` | 純 types，無 rewrites |
+| `src/lib/bom/types/backup.ts` | BOM `lib/types/backup.ts` | 純 types，無 rewrites |
+| `src/lib/bom/types/cost-baseline.ts` | BOM `lib/types/cost-baseline.ts` | 純 types，無 rewrites |
+| `src/lib/bom/types/monthly-lock.ts` | BOM `lib/types/monthly-lock.ts` | 純 types，無 rewrites |
+| `src/lib/bom/utils/tz.ts` | BOM `lib/utils/tz.ts` | 無 rewrites |
+| `src/lib/bom/utils/cost-rate-status.ts` | BOM `lib/utils/cost-rate-status.ts` | 無 rewrites |
+| `src/lib/bom/hooks/use-audit-log.ts` | BOM `lib/hooks/use-audit-log.ts` | `.rpc()` → `.schema("bom").rpc()`、params 加 `Json` cast |
+| `src/lib/bom/hooks/use-backup-history.ts` | BOM `lib/hooks/use-backup-history.ts` | `.from()` + `.rpc()` 都加 `.schema("bom")` |
+| `src/lib/bom/hooks/use-monthly-lock-status.ts` | BOM `lib/hooks/use-monthly-lock-status.ts` | `.from("monthly_locks")` → `.schema("bom").from(...)` |
+
+**不 port**：
+- BOM `lib/supabase/{client,server,middleware}.ts`：用 hoochuu-internal 既有
+- BOM `lib/utils.ts`（`cn()`）：已合併進 hoochuu-internal 的 `src/lib/utils.ts`
+
+**新版 React lint 規則處理**：`react-hooks/set-state-in-effect` flag BOM hooks 內 on-mount fetch pattern。加 `eslint-disable-next-line` 注解保留 BOM 原 API；未來 refactor 用 TanStack Query 等可再評估。
+
+**驗證**：typecheck / test / lint 全綠（69 tests）。
+
+**接下來**：Phase 3+4c 開始 port BOM `src/components/*`（19 檔），可能要 port shadcn primitives（Button/Card/Input 等），謹慎評估與 Neo Brutalism 共存。
+
 ### Phase 3+4 PR-A：regen `types.ts` 加入 `bom` schema
 
 合併計畫 [Phase 3 step 5](https://github.com/chahababa/hoochuu-internal-docs/blob/main/merge-plan-curried-brewing-fog.md) — types 重生為 Phase 3+4 BOM 程式碼 port 鋪路。
