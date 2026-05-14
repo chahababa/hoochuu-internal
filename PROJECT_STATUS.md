@@ -2,7 +2,7 @@
 
 ## Current Stage
 
-`Stores Checking System` is currently at an internal beta stage and is deployed on Zeabur.
+This repo is `hoochuu-internal` (formerly `Stores Checking System`), currently in **production** on Zeabur. All four 好初早餐 stores use it daily. A larger merge project is in progress to absorb the BOM cost-management system into this repo — see `CLAUDE.md` for phase status.
 
 - GitHub repo: `chahababa/hoochuu-internal`
 - Default branch: `main`
@@ -40,20 +40,25 @@ Run the full gate before merging code changes or deploying manually.
 
 - `supabase/seed.sql` is localized and currently seeds Chinese store, category, and item names.
 - Seeded owner account is `chahababa@gmail.com`.
-- Current migration set has 10 files, from `20260408000001_mvp_schema.sql` through `20260423000010_add_menu_observation_note.sql`.
+- Current migration set has 16 files (14-digit standard format), from `20260408000001_mvp_schema.sql` through `20260513000016_create_bom_schema.sql`. All 16 are tracked in `supabase_migrations.schema_migrations` (restored 2026-05-14 via PR #26 — see `supabase/scripts/restore-migration-tracking.sql`).
 
 ## Current External / Operational Notes
 
-- GitHub repo and `origin/main` are configured; the old “restore gh auth and push repo” blocker is resolved.
-- The local machine does not currently have the `gh` CLI installed, so GitHub operations should use git plus GitHub MCP/API unless `gh` is installed later.
+- GitHub repo and `origin/main` are configured; the old "restore gh auth and push repo" blocker is resolved.
+- `gh` CLI is installed and authenticated; use it for PR / issue / release operations.
 - The production Zeabur app is reachable at `https://stores-checking-system.zeabur.app`.
 - Resend inspection-completion email is implemented in code but remains disabled until `RESEND_API_KEY` and `RESEND_FROM_EMAIL` are configured in Zeabur. See `TODO_RESEND_SETUP.md`.
-- Local Supabase CLI is not linked in this working tree; use the known production project explicitly when checking remote migration state.
+- Local Supabase CLI is linked to SCS production (project ref `owogsszmolouoqsgmwik`) — see `supabase/.temp/project-ref`. `supabase db push` is operational after the 2026-05-14 tracking restore (PR #26).
 
 ## Recommended Next Phase
 
-1. Finish Resend domain/API-key setup if email notifications should go live.
-2. Confirm production Supabase migration state against the current 10 migration files.
-3. Run the full smoke test in `GO_LIVE_CHECKLIST.md` against production.
-4. Add more route/server-action integration tests for critical flows.
-5. Decide whether LINE integration is still desired after email notifications are enabled.
+Active roadmap is the BOM merge project — see `CLAUDE.md` "下一步（Phase 1+）" and the source-of-truth plan at https://github.com/chahababa/hoochuu-internal-docs.
+
+Immediate next phase: **Phase 1 — unified notification center** (`public.notifications` table + bell UI, SCS-only first, then shared once BOM is ported in Phases 2-4).
+
+SCS-only carry-over items (not blocking the merge):
+
+1. Finish Resend domain/API-key setup if email notifications should go live (see `TODO_RESEND_SETUP.md`).
+2. Run the full smoke test in `GO_LIVE_CHECKLIST.md` against production after each phase.
+3. Add more route/server-action integration tests for critical flows.
+4. Decide whether LINE integration is still desired after email notifications are enabled.
