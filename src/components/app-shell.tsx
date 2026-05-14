@@ -28,6 +28,23 @@ const peopleAndItemLinks: NavigationLink[] = [
   { href: "/settings/release-announcements", label: "更新通知", roles: ["owner", "manager"] },
 ];
 
+const bomLinks: NavigationLink[] = [
+  { href: "/bom/cost-overview", label: "成本總覽", roles: ["owner", "manager"] },
+  { href: "/bom/baselines", label: "成本基準", roles: ["owner", "manager"] },
+  { href: "/bom/dishes", label: "餐點 BOM", roles: ["owner", "manager"] },
+  { href: "/bom/semi-products", label: "半成品", roles: ["owner", "manager"] },
+  { href: "/bom/ingredients", label: "食材／品項", roles: ["owner", "manager"] },
+  { href: "/bom/purchase", label: "進貨紀錄", roles: ["owner", "manager"] },
+  { href: "/bom/search", label: "BOM 搜尋", roles: ["owner", "manager"] },
+  { href: "/bom/import", label: "批次匯入", roles: ["owner", "manager"] },
+];
+
+const bomSettingsLinks: NavigationLink[] = [
+  { href: "/settings/bom/monthly-close", label: "月結鎖定", roles: ["owner", "manager"] },
+  { href: "/settings/bom/backup", label: "BOM 備份", roles: ["owner"] },
+  { href: "/settings/bom/audit-log", label: "BOM 操作紀錄", roles: ["owner", "manager"] },
+];
+
 const otherSettingsLinks: NavigationLink[] = [
   { href: "/settings/users", label: "帳號管理", roles: ["owner", "manager"] },
   { href: "/settings/stores", label: "店別管理", roles: ["owner"] },
@@ -47,8 +64,18 @@ export function AppShell({
   stores: StoreOption[];
   impersonationStoreName: string | null;
 }>) {
-  const visibleInspectionLinks = inspectionLinks.filter((link) => link.roles.includes(profile.role));
-  const visiblePeopleAndItemLinks = peopleAndItemLinks.filter((link) => link.roles.includes(profile.role));
+  const visibleInspectionLinks = profile.can_access_inspection
+    ? inspectionLinks.filter((link) => link.roles.includes(profile.role))
+    : [];
+  const visiblePeopleAndItemLinks = profile.can_access_inspection
+    ? peopleAndItemLinks.filter((link) => link.roles.includes(profile.role))
+    : [];
+  const visibleBomLinks = profile.can_access_bom
+    ? bomLinks.filter((link) => link.roles.includes(profile.role))
+    : [];
+  const visibleBomSettingsLinks = profile.can_access_bom
+    ? bomSettingsLinks.filter((link) => link.roles.includes(profile.role))
+    : [];
   const visibleOtherSettingsLinks = otherSettingsLinks.filter((link) => link.roles.includes(profile.role));
   const isImpersonating = Boolean(profile.impersonating);
   const isRealOwner = (profile.impersonating?.realRole ?? profile.role) === "owner";
@@ -86,15 +113,33 @@ export function AppShell({
           </div>
         </div>
         <nav className="mx-auto flex max-w-6xl flex-col gap-3 px-4 pb-4">
-          <NavigationGroup title="巡檢業務" eyebrow="Inspection" links={visibleInspectionLinks} initialPathname={pathname} />
+          {visibleInspectionLinks.length > 0 ? (
+            <NavigationGroup title="巡檢業務" eyebrow="Inspection" links={visibleInspectionLinks} initialPathname={pathname} />
+          ) : null}
           {visiblePeopleAndItemLinks.length > 0 ? (
-            <div className="h-[2px] w-full bg-nb-ink/20" aria-hidden="true" />
+            <>
+              <div className="h-[2px] w-full bg-nb-ink/20" aria-hidden="true" />
+              <NavigationGroup title="組員與題目" eyebrow="People & Items" links={visiblePeopleAndItemLinks} initialPathname={pathname} />
+            </>
           ) : null}
-          <NavigationGroup title="組員與題目" eyebrow="People & Items" links={visiblePeopleAndItemLinks} initialPathname={pathname} />
+          {visibleBomLinks.length > 0 ? (
+            <>
+              <div className="h-[2px] w-full bg-nb-ink/20" aria-hidden="true" />
+              <NavigationGroup title="BOM 成本管理" eyebrow="BOM Cost" links={visibleBomLinks} initialPathname={pathname} />
+            </>
+          ) : null}
+          {visibleBomSettingsLinks.length > 0 ? (
+            <>
+              <div className="h-[2px] w-full bg-nb-ink/20" aria-hidden="true" />
+              <NavigationGroup title="BOM 設定" eyebrow="BOM Settings" links={visibleBomSettingsLinks} initialPathname={pathname} />
+            </>
+          ) : null}
           {visibleOtherSettingsLinks.length > 0 ? (
-            <div className="h-[2px] w-full bg-nb-ink/20" aria-hidden="true" />
+            <>
+              <div className="h-[2px] w-full bg-nb-ink/20" aria-hidden="true" />
+              <NavigationGroup title="其他設定" eyebrow="Other Settings" links={visibleOtherSettingsLinks} initialPathname={pathname} />
+            </>
           ) : null}
-          <NavigationGroup title="其他設定" eyebrow="Other Settings" links={visibleOtherSettingsLinks} initialPathname={pathname} />
         </nav>
       </header>
       <main className="mx-auto max-w-6xl px-4 py-8">{children}</main>

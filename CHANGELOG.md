@@ -2,6 +2,47 @@
 
 ## 2026-05-14 Latest
 
+### Phase 3+4 PR-E：AppShell BOM 模組導航 + grant `can_access_bom=true` 給 owners
+
+合併計畫 Phase 4 步驟 4 + 7 — BOM 模組進入點上線，現有 owner 帳號開始可以看到 BOM 入口。
+
+**`src/lib/auth.ts` 改動**：
+- `UserProfile` type 加 `can_access_bom: boolean` + `can_access_inspection: boolean` 兩個欄位
+- `getCurrentUserProfile()` 的 SELECT 列加上這兩欄
+- 影響：所有透過 `requireUser()` / `requireRole()` 取得 profile 的呼叫者（包含 Phase 3+4d 寫的 BOM access-gate layout）現在可以直接讀 `profile.can_access_bom` 而不必再 query DB
+
+**`src/components/app-shell.tsx` 改動**：
+- 新增兩個 navigation group：
+  - **「BOM 成本管理」** (`bomLinks`)：8 個路由 — 成本總覽、成本基準、餐點 BOM、半成品、食材／品項、進貨紀錄、BOM 搜尋、批次匯入
+  - **「BOM 設定」** (`bomSettingsLinks`)：3 個路由 — 月結鎖定、BOM 備份、BOM 操作紀錄
+- 兩 group 都 gated by `profile.can_access_bom`（不符合條件直接 hide）
+- 巡檢、組員與題目 group 改 gated by `profile.can_access_inspection`（未來純 BOM user 不會看到巡店入口）
+- nav group 之間的分隔線改成 conditional 渲染（避免空 group 留下孤立的線）
+
+**Migration `20260514000021_grant_bom_access_to_owners.sql`**：
+
+```sql
+UPDATE public.users
+SET can_access_bom = true
+WHERE role = 'owner' AND is_active = true AND can_access_bom IS DISTINCT FROM true;
+```
+
+Prod 驗證結果：1 個 active owner（`chahababa@gmail.com`）拿到 `can_access_bom=true`。其他角色不受影響（managers/leaders `can_access_bom` 仍 0 筆 true）。
+
+**Phase 4 主要目標達成**：
+
+- BOM 完整 schema + 25 functions + storage buckets（Phase 2-A/B/C）
+- BOM lib + components + routes 都 port 進 hoochuu-internal（Phase 3+4a-d）
+- AppShell 顯示 BOM 入口、owner 帳號可立即看到（本 PR）
+- Owner 登入 → header 新增「BOM 成本管理」+「BOM 設定」兩 group → 點任一連結 → access-gate layout 通過 → 進入 BOM 頁面
+
+**已知後續**：
+- Phase 5 BOM Infra（pg_cron + Vault + Edge Functions + Resend）尚未啟用
+- Shadcn primitives 視覺整合與 Neo Brutalism 共存待 cleanup PR 評估
+- Manager / leader 想用 BOM 需另案 grant `can_access_bom=true`
+
+**驗證**：typecheck / test / lint / build 全綠（69 tests）。
+
 ### Phase 3+4 PR-D：port BOM routes 進 `(protected)/bom/*` + `(protected)/settings/bom/*`
 
 合併計畫 Phase 4 步驟 1-2 — port BOM 21 個 routes 進 hoochuu-internal `(protected)` group，掛上 access gate layout。
