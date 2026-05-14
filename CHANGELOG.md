@@ -2,6 +2,30 @@
 
 ## 2026-05-14 Latest
 
+### Phase 2 PR-C：BOM storage buckets
+
+合併計畫 [Phase 2 §A.1 / §B Phase 2 step 3](https://github.com/chahababa/hoochuu-internal-docs/blob/main/merge-plan-curried-brewing-fog.md) 收尾。BOM 模組要用的兩個 storage bucket 建好。
+
+**Migration `20260514000020_bom_storage_buckets.sql`**：
+
+- `bom-imports` bucket（私有）：BOM Excel 匯入暫存，10 MB 上限，允許 `.xlsx` / `.xls` / `.csv` MIME types
+- `bom-backups-staging` bucket（service_role only）：Phase 5 BOM 三層備份的 Edge Function 中介用（500 MB 上限）
+
+**RLS policies on `storage.objects`**：
+
+| Policy | Bucket | 對象 | 條件 |
+|---|---|---|---|
+| `bom_imports_select_owner_manager` | bom-imports | authenticated | `current_user_role() IN ('owner','manager') AND current_user_can_access_bom()` |
+| `bom_imports_insert_owner_manager` | bom-imports | authenticated | 同上 |
+| `bom_imports_update_owner_manager` | bom-imports | authenticated | 同上 |
+| `bom_imports_delete_owner_manager` | bom-imports | authenticated | 同上 |
+
+`bom-backups-staging` **不開任何 authenticated user policy** — 只有 service_role（Edge Functions / admin client）可存取。Phase 5 啟用 BOM Infra 後由 Edge Function 走 service_role 寫入。
+
+**為什麼安全**：純新增 bucket + RLS policies；既有 `inspection-photos` 完全不動；0 員工 `can_access_bom=true`，bom-imports 上線後沒人能存取。
+
+**Phase 2 三件套完成**：PR-A（users flags）+ PR-B（schema port 19 tables）+ PR-C（storage buckets）= BOM 在 SCS Supabase 已有完整 schema + storage 基礎建設，待 Phase 4 BOM UI port 上線後可立即啟用。
+
 ### Phase 2 PR-B：BOM schema 大規模 port（19 tables / 5 enums / 25 functions / 20 triggers / 42 RLS policies）
 
 合併計畫 [Phase 2 §A.1 / §B Phase 2](https://github.com/chahababa/hoochuu-internal-docs/blob/main/merge-plan-curried-brewing-fog.md) 的主菜。BOM 系統的完整 schema 全部 port 進來，**無 UI**、**無使用者感受**，純基礎建設。
