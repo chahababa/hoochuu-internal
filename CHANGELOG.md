@@ -2,6 +2,46 @@
 
 ## 2026-05-14 Latest
 
+### Phase 1 PR-B：Bell UI + realtime + types.ts 重生
+
+**承接 PR-A**（DB 骨幹已上 prod）。本 PR 把通知中心 bell 元件掛上 AppShell header，引入 Supabase realtime 即時收新通知。
+
+**types.ts 重生**：跑 `supabase gen types typescript --linked --schema public` 取代手寫版（620 行 → 931 行）。generated 版含 `Relationships`、`__InternalSupabase.PostgrestVersion` 等 supabase-js 期待的 metadata。**4 個原本 import types 的檔案**（`audit.ts` / `notify.ts` / `supabase/server.ts` / `supabase/client.ts`）只 import `Database` / `Json`，generated 版完全相容、無 breaking change。
+
+**RPC 推導已知 issue**：實測發現 generated types 仍無法讓 supabase-js 正確推導 `.rpc("fn_notify", {...})` 的 Args（`Schema` generic 解析為 `never`）。`notify.ts` 保留結構化 cast workaround、加詳細註解。**追蹤項**：後續調查是否是 `@supabase/ssr@0.5.2` + `@supabase/supabase-js@2.49.8` 版本相容性問題；不阻擋 Phase 1。
+
+**新檔**：
+
+- [`src/lib/notification-bell-actions.ts`](src/lib/notification-bell-actions.ts)：`markNotificationRead` / `markAllNotificationsRead` server actions。沿用本 repo 約定：寫入走 `createAdminClient()` + 顯式檢查 `user_id = profile.id`（與 `inspection.ts` / `settings.ts` 既有模式一致）。
+- [`src/lib/relative-time.ts`](src/lib/relative-time.ts)：時間 formatter（剛剛 / X 分鐘前 / X 小時前 / X 天前 / 14+ 天回退日期）+ 7 個 unit tests。
+- [`src/components/notification-bell.tsx`](src/components/notification-bell.tsx)：server component，預載最新 20 筆通知。
+- [`src/components/notification-bell-client.tsx`](src/components/notification-bell-client.tsx)：client component。Neo Brutalism 風格 bell + 紅色未讀 badge（>9 顯示「9+」）+ dropdown（標題、body 兩行截斷、relative time）+ 「全部標已讀」+ 「查看全部 →」連既有 `/notifications` 頁。
+
+**Realtime**：Supabase `postgres_changes` channel 訂閱 `notifications` filtered by `user_id=eq.<profile.id>`、INSERT 事件即時 prepend 進 dropdown + 自動更新 badge。第一次在本 repo 引入 realtime pattern。
+
+**Optimistic UI**：點 mark-read 先更新本地 state、再背景 server action；server action 若失敗會自動 rollback。
+
+**修改**：
+
+- [`src/components/app-shell.tsx`](src/components/app-shell.tsx)：header 右側 user-card 之前插入 `<NotificationBell />`，原本 `flex justify-between` 結構保留、user-card 被 wrap 在新外層 div。
+
+**驗證**：
+
+- `npm run typecheck`：clean
+- `npm run test`：20 test files / 69 tests 全綠（+7 from `relative-time.test.ts`）
+- `npm run lint`：clean
+- `npm run build`：成功，所有 routes 編譯
+
+**Production 影響**：
+
+- 員工感受：登入後 header 多一個 bell icon。目前 prod 還沒任何 notification（Phase 1 PR-A 剛上、`improvement_tasks` 觸發 trigger 是新行為），所以 badge 預設不顯示。**首次有員工建立改善任務後**，該店 leader 會立即收到 realtime 通知。
+- 既有 `/notifications` 頁面**完全不動**，繼續用 rule-based 聚合（PR-C 才會 cutover）。
+- 回滾：trigger 已在 prod 不影響，bell 元件回滾 `git revert <commit>`。
+
+**Followup**：
+- [ ] 跑 `.rpc` 推導問題的版本相容性追查
+- [ ] PR-C：`/notifications` 頁面從 rule-based 聚合 cutover 到讀新表（等 PR-B 穩定 2-3 週後）
+
 ### Phase 1 PR-A：統一通知中心 DB 骨幹
 
 **背景**：合併計畫 Phase 1。目的是把通知骨幹建好，SCS 自己先用起來，未來 Phase 4 BOM port 進來後共用同一張表。詳見 [merge plan §A.4](https://github.com/chahababa/hoochuu-internal-docs/blob/main/merge-plan-curried-brewing-fog.md)。
