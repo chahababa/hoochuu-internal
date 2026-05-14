@@ -5,6 +5,7 @@
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { fetchClientUserProfile } from "@/lib/bom/client-profile";
 import { Button } from "@/components/bom/ui/button";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
@@ -34,8 +35,8 @@ export default function BaselinesPage() {
     setLoading(true);
     const supabase = createClient();
 
-    const { data: { user } } = await supabase.auth.getUser();
-    setRole((user?.app_metadata?.role as string | undefined) ?? null);
+    const profile = await fetchClientUserProfile();
+    setRole(profile?.role ?? null);
 
     const { data: baselines } = await supabase
       .schema("bom")

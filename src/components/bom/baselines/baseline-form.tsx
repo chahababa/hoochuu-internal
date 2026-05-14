@@ -4,6 +4,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { fetchClientUserProfile } from "@/lib/bom/client-profile";
 import { Button } from "@/components/bom/ui/button";
 import { Input } from "@/components/bom/ui/input";
 import { Textarea } from "@/components/bom/ui/textarea";
@@ -30,9 +31,8 @@ export function BaselineForm({ initial }: Props) {
   const [access, setAccess] = useState<"loading" | "ok" | "denied">("loading");
 
   useEffect(() => {
-    const supabase = createClient();
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      const role = user?.app_metadata?.role as string | undefined;
+    fetchClientUserProfile().then((profile) => {
+      const role = profile?.role;
       setAccess(role === "owner" || role === "manager" ? "ok" : "denied");
     });
   }, []);
