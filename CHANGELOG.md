@@ -2,6 +2,65 @@
 
 ## 2026-05-14 Latest
 
+### Phase 3+4 PR-C：port BOM `src/components/*` 進 `src/components/bom/*`（18 元件）
+
+合併計畫 Phase 4 步驟 3 — 把 BOM 的 18 個共用元件搬進 hoochuu-internal（19 個來源中 `shared/navbar.tsx` 不 port，hoochuu-internal 已有 AppShell）。
+
+**新增 deps**（BOM 元件需要）：
+
+| 套件 | 用途 |
+|---|---|
+| `@base-ui/react` | UI primitives 基礎（BOM 的 dialog/popover/select 等用它，非 Radix） |
+| `class-variance-authority` | Button / Badge 變體樣式 |
+| `cmdk` | Command palette 元件 |
+| `lucide-react` | Icons |
+| `sonner` | Toast 通知（部分 dialog 用） |
+| `tw-animate-css` | CSS 動畫 utilities |
+| `@hookform/resolvers` + `react-hook-form` + `zod` | 表單驗證（Phase 4 routes 會用） |
+| `recharts` | 圖表（dashboard 會用） |
+| `xlsx` | Excel 解析（import 功能會用） |
+| `next-themes` | Theme provider |
+
+**新檔結構**（`src/components/bom/`）：
+
+```
+bom/
+├── baselines/baseline-form.tsx        ← Sprint 11 baseline 編輯
+├── dialogs/                           ← 改名自 BOM 的 `components/bom/`
+│   ├── add-dish-dialog.tsx
+│   ├── add-ingredient-dialog.tsx
+│   ├── add-product-dialog.tsx
+│   └── add-semi-product-dialog.tsx
+├── dashboard/MonthlyCloseCard.tsx
+└── ui/                                ← shadcn-style primitives
+    ├── badge.tsx / button.tsx / card.tsx
+    ├── command.tsx / dialog.tsx / popover.tsx
+    ├── input.tsx / input-group.tsx / textarea.tsx
+    ├── select.tsx / table.tsx / sonner.tsx
+```
+
+**Mechanical rewrites**（subagent 套用、grep 驗證 0 漏）：
+
+- `@/components/ui/...` → `@/components/bom/ui/...`
+- `@/components/bom/...` → `@/components/bom/dialogs/...`（避免命名衝突）
+- `@/components/dashboard/...` → `@/components/bom/dashboard/...`
+- `@/components/baselines/...` → `@/components/bom/baselines/...`
+- `@/lib/types/...` → `@/lib/bom/types/...`
+- `@/lib/hooks/...` → `@/lib/bom/hooks/...`
+- `@/lib/utils/cost-rate-status` → `@/lib/bom/utils/cost-rate-status`
+- `@/lib/utils/tz` → `@/lib/bom/utils/tz`
+- `.from("<bom_table>")` → `.schema("bom").from("<bom_table>")`
+- `.rpc("<bom_fn>", ...)` → `.schema("bom").rpc("<bom_fn>", ...)`
+- `'area_manager'` → `'manager'`（含 baseline-form.tsx UI 文字「此頁僅限 owner 與 manager 存取」）
+
+**Lint 處理**：6 個 `react-hooks/set-state-in-effect` 違反（BOM 慣用的 dialog reset + on-mount fetch + debounced search 模式）加 `eslint-disable-next-line` 注解保留 BOM 原 API。
+
+**已知視覺問題**：BOM `ui/*` shadcn primitives 用 `bg-background` 等 CSS variables，hoochuu-internal 是 Neo Brutalism、沒對應變數定義。**routes port 完後做視覺巡檢、決定主題化策略**（Phase 3+4g 留作 cleanup PR）。
+
+**驗證**：typecheck / test / lint / build 全綠（69 tests）。
+
+**接下來**：Phase 3+4d 開始 port BOM `src/app/*` 25 個 routes。
+
 ### Phase 3+4 PR-B：port BOM `src/lib/*` 進 `src/lib/bom/*`
 
 合併計畫 Phase 3 步驟 1-3 — port BOM 共用 lib（types / utils / hooks）進 hoochuu-internal，套上 schema rewrites。
