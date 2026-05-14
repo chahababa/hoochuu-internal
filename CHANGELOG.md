@@ -2,6 +2,57 @@
 
 ## 2026-05-14 Latest
 
+### Phase 2 PR-B：BOM schema 大規模 port（19 tables / 5 enums / 25 functions / 20 triggers / 42 RLS policies）
+
+合併計畫 [Phase 2 §A.1 / §B Phase 2](https://github.com/chahababa/hoochuu-internal-docs/blob/main/merge-plan-curried-brewing-fog.md) 的主菜。BOM 系統的完整 schema 全部 port 進來，**無 UI**、**無使用者感受**，純基礎建設。
+
+**Migration `20260514000019_bom_schema_port.sql`**（1873 行）：
+
+- 來源：`Hoochuu-Bom-System` repo 的 17 支 migration（跳過 `_2_stores_users` / `_11_auth_hook_rls_fix` / `_12_sync_user_role_to_auth_metadata`）
+- 19 tables 進 `bom.*` schema（17 個 audit 預估 + monthly_locks / monthly_lock_audit 兩個被 audit section 2 漏算的）
+- 5 enums：`alert_type` / `alert_severity` / `alert_status` / `monthly_lock_status` / `monthly_lock_event_type`
+- 25 functions：trigger helpers、cost engine、price recalc、monthly lock、audit、backup
+- 20 triggers：updated_at、force-pending status、cost cascade、alerts dispatch (stub)、monthly lock checks
+- 42 RLS policies：全部用 `public.current_user_role()` / `current_user_store_id()`，**全部尾巴接 `AND public.current_user_can_access_bom()`**（唯一例外：`alerts_insert_denied` 用 `WITH CHECK (false)` 硬擋）
+
+**Mechanical rewrites（全部執行）**：
+
+| 規則 | 出現次數 |
+|---|---|
+| `auth.jwt()->'app_metadata'->>'role'` → `public.current_user_role()` | 27 |
+| `auth.jwt()->'app_metadata'->>'store_id'` → `public.current_user_store_id()` | 5 |
+| `'area_manager'` → `'manager'` | 15 |
+| `'staff'` → `'leader'` | 0（BOM SQL 中無此 role string，merge plan 規則仍記錄） |
+| `REFERENCES auth.users` (created_by/updated_by/deleted_by) → `REFERENCES public.users` | 36 處欄位（保留 `query_audit_log.user_id` + `backup_history.actor_id` 兩個 direct auth refs 不動） |
+
+**fn_recalc_current_price**：BOM M05 創建、M15 加 variance detection、M16 修精度（2→4）。本次 port **只保留 M16 終版**，內含 M15 的 variance + M16 的 precision fix，並把 M08 的 cost cascade 呼叫補回。
+
+**Phase 5 deferred infra**（不在本 migration）：
+- `cron.schedule(...)`：所有 pg_cron 排程（M18 monthly auto-lock / M19 audit purge / M20 backup daily/monthly/purge）→ 留 comment stub
+- `pg_net.http_post(...)`：Edge Function dispatch（M15 immediate alerts / M18 monthly lock notification / M20 backup trigger）→ 留 comment stub
+- `vault.decrypted_secrets`：Vault secret reads（M20 R2/GDrive credentials）→ 留 comment stub
+- 結果：所有 trigger function 本體保留（table writes、log inserts、business logic 正常運作），**HTTP dispatch + cron 排程等 Phase 5 啟用**
+
+**新增 extensions**：
+- `pg_trgm WITH SCHEMA public`：ingredients/products 的 trigram similarity search 需要
+
+**為什麼安全**：
+- 全部建 `bom.*` schema，跟 SCS 既有 `public.*` 完全隔離 — 巡店流程 100% 不受影響
+- `public.users` / `public.stores` 維持唯一資料源
+- 純 additive：新建 schema、無 ALTER 或 DROP 既有物件
+- Idempotent：`CREATE OR REPLACE` / `IF NOT EXISTS` / `DROP TRIGGER IF EXISTS ... CREATE` patterns 貫穿全檔
+- 0 員工有 `can_access_bom=true`（PR-A default 全 false）→ 即便 schema 全建好，沒人能讀 BOM 表
+
+**驗證**：
+- `npm run typecheck`：clean
+- `npm run test`：20 test files / 69 tests 全綠（無新增測試）
+- `npm run lint`：clean
+- `supabase db push --dry-run`：成功識別 1 支 pending migration
+
+**Production 套用**：第四次走正規 `supabase db push`。應用 schema 後，schema 立刻可用、所有 RLS 立刻生效、`can_access_bom=true` 的使用者才能讀（目前 0 人）。
+
+**回滾**：`DROP SCHEMA bom CASCADE;` 可一鍵清掉所有本 PR 新建物件、不影響 `public.*`。
+
 ### Phase 2 PR-A：users 模組權限欄位 + can_access_bom helper
 
 合併計畫 [Phase 2 §A.2](https://github.com/chahababa/hoochuu-internal-docs/blob/main/merge-plan-curried-brewing-fog.md) 的第一步、為 Phase 2-B（BOM 17 張表 port）鋪路。
