@@ -7,17 +7,6 @@
   - add DNS records
   - set `RESEND_API_KEY` and `RESEND_FROM_EMAIL` in Zeabur
   - send one test inspection and confirm email delivery / audit logs
-- Confirm the production Supabase project has all current migrations applied:
-  - `20260408000001_mvp_schema.sql`
-  - `20260408000002_inspections.sql`
-  - `20260408000003_inspection_photos.sql`
-  - `20260408000004_audit_logs.sql`
-  - `20260410000005_localize_seed_content.sql`
-  - `20260410000006_fix_store_names.sql`
-  - `20260411000007_expand_focus_items_to_tags.sql`
-  - `20260411000008_workstations_and_shift_assignment.sql`
-  - `20260412000009_menu_item_photos.sql`
-  - `20260423000010_add_menu_observation_note.sql`
 - Execute the full production smoke test in `GO_LIVE_CHECKLIST.md`.
 - Create or confirm real manager and leader accounts for day-to-day use.
 - Confirm backup / recovery expectations for Supabase database and storage.
@@ -40,5 +29,6 @@
 ## Resolved / Historical
 
 - GitHub repo creation and initial push are complete. The active repo is `chahababa/hoochuu-internal`.
-- The old GitHub CLI token blocker is no longer a production blocker. This machine currently has no `gh` command installed, so use git plus GitHub MCP/API for repo operations unless `gh` is installed later.
+- `gh` CLI is installed and authenticated on this machine; use it for PR / issue / release operations.
 - Production hosting is already on Zeabur at `https://stores-checking-system.zeabur.app`.
+- SCS production Supabase migration tracking was restored 2026-05-14 (PR #26 + `supabase/scripts/restore-migration-tracking.sql`). All 16 migrations are now tracked; `supabase db push` is operational.
