@@ -51,6 +51,12 @@ function usersQueryResult(data: unknown, error: unknown = null) {
   };
 }
 
+function setEmailEnv() {
+  process.env.RESEND_API_KEY = "test-resend-key";
+  process.env.RESEND_FROM_EMAIL = "reports@example.com";
+  process.env.NEXT_PUBLIC_SITE_URL = "https://stores.example.com/";
+}
+
 describe("sendInspectionCompletedEmail", () => {
   beforeEach(() => {
     vi.resetModules();
@@ -73,9 +79,7 @@ describe("sendInspectionCompletedEmail", () => {
   });
 
   it("sends inspection report email to store leader, managers, and owners by BCC", async () => {
-    process.env.RESEND_API_KEY = "test-key";
-    process.env.RESEND_FROM_EMAIL = "reports@example.com";
-    process.env.NEXT_PUBLIC_SITE_URL = "https://stores.example.com/";
+    setEmailEnv();
 
     const inspectionRow = {
       id: "inspection-1",
@@ -129,5 +133,62 @@ describe("sendInspectionCompletedEmail", () => {
         html: expect.stringContaining("冰箱溫度需追蹤 &lt;確認&gt;"),
       }),
     );
+  });
+
+  it("does not send when there are no active recipients", async () => {
+    setEmailEnv();
+
+    mocks.fromMock.mockImplementation((table: string) => {
+      if (table === "inspections") {
+        return inspectionQueryResult({
+          id: "inspection-1",
+          date: "2026-05-14",
+          time_slot: "午班",
+          total_score: 3,
+          store_id: "store-1",
+          stores: { id: "store-1", name: "好初測試店" },
+          users: null,
+        });
+      }
+      if (table === "inspection_scores") return queryResult([]);
+      if (table === "users") return usersQueryResult([]);
+      throw new Error(`unexpected table: ${table}`);
+    });
+
+    const { sendInspectionCompletedEmail } = await import("@/lib/email");
+    await expect(sendInspectionCompletedEmail("inspection-1")).resolves.toEqual({
+      ok: false,
+      reason: "no_recipients",
+    });
+    expect(mocks.sendMock).not.toHaveBeenCalled();
+  });
+
+  it("returns send_failed when the email provider rejects the message", async () => {
+    setEmailEnv();
+
+    mocks.fromMock.mockImplementation((table: string) => {
+      if (table === "inspections") {
+        return inspectionQueryResult({
+          id: "inspection-1",
+          date: "2026-05-14",
+          time_slot: "午班",
+          total_score: 3,
+          store_id: "store-1",
+          stores: { id: "store-1", name: "好初測試店" },
+          users: { email: "inspector@example.com", name: "巡店員" },
+        });
+      }
+      if (table === "inspection_scores") return queryResult([]);
+      if (table === "users") return usersQueryResult([{ email: "owner@example.com", role: "owner", store_id: null }]);
+      throw new Error(`unexpected table: ${table}`);
+    });
+    mocks.sendMock.mockResolvedValue({ data: null, error: { message: "provider rejected" } });
+
+    const { sendInspectionCompletedEmail } = await import("@/lib/email");
+    await expect(sendInspectionCompletedEmail("inspection-1")).resolves.toEqual({
+      ok: false,
+      reason: "send_failed",
+      error: "provider rejected",
+    });
   });
 });
