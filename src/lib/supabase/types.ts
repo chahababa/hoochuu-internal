@@ -505,6 +505,50 @@ export type Database = {
           source_ref?: string | null;
         };
       };
+      notifications: {
+        Row: {
+          id: string;
+          user_id: string;
+          store_id: string | null;
+          module: "inspection" | "bom" | "system";
+          type: string;
+          severity: "info" | "warning" | "critical";
+          title: string;
+          body: string | null;
+          link: string | null;
+          metadata: Json;
+          read_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          store_id?: string | null;
+          module: "inspection" | "bom" | "system";
+          type: string;
+          severity?: "info" | "warning" | "critical";
+          title: string;
+          body?: string | null;
+          link?: string | null;
+          metadata?: Json;
+          read_at?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          store_id?: string | null;
+          module?: "inspection" | "bom" | "system";
+          type?: string;
+          severity?: "info" | "warning" | "critical";
+          title?: string;
+          body?: string | null;
+          link?: string | null;
+          metadata?: Json;
+          read_at?: string | null;
+          created_at?: string;
+        };
+      };
     };
     Views: Record<string, never>;
     Functions: {
@@ -525,6 +569,37 @@ export type Database = {
       current_user_store_id: {
         Args: Record<PropertyKey, never>;
         Returns: string | null;
+      };
+      current_user_id: {
+        Args: Record<PropertyKey, never>;
+        Returns: string | null;
+      };
+      fn_notify: {
+        Args: {
+          p_user_id: string;
+          p_module: string;
+          p_type: string;
+          p_severity: string;
+          p_title: string;
+          p_body: string | null;
+          p_link: string | null;
+          p_metadata: Record<string, unknown>;
+        };
+        Returns: string;
+      };
+      fn_notify_role: {
+        Args: {
+          p_role: "owner" | "manager" | "leader";
+          p_store_id: string | null;
+          p_module: string;
+          p_type: string;
+          p_severity: string;
+          p_title: string;
+          p_body: string | null;
+          p_link: string | null;
+          p_metadata: Record<string, unknown>;
+        };
+        Returns: number;
       };
     };
     Enums: {

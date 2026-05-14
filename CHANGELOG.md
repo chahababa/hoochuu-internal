@@ -2,6 +2,34 @@
 
 ## 2026-05-14 Latest
 
+### Phase 1 PR-A：統一通知中心 DB 骨幹
+
+**背景**：合併計畫 Phase 1。目的是把通知骨幹建好，SCS 自己先用起來，未來 Phase 4 BOM port 進來後共用同一張表。詳見 [merge plan §A.4](https://github.com/chahababa/hoochuu-internal-docs/blob/main/merge-plan-curried-brewing-fog.md)。
+
+**Phase 1 拆分**：本 PR 是 PR-A（DB 骨幹），後續 PR-B（Bell UI）、PR-C（`/notifications` 頁面 cutover）獨立進行，每階段 prod 觀察 2-3 天。
+
+**Migration `20260514000017_unified_notifications.sql`**：
+
+- 新增 `public.notifications` table（含 `module` / `type` / `severity` / `title` / `body` / `link` / `metadata` / `read_at` 等欄位）+ `(user_id, read_at, created_at desc)` index
+- 新增 helper `public.current_user_id()`（橋接 `auth.uid()` → `public.users.id`，因為兩者透過 email 配對於 `current_user_profile()`）
+- RLS：`notifications_select_own` + `notifications_update_own`（用 `current_user_id()`）。**不開 INSERT policy** — 直接 INSERT 一律被擋，只走 SECURITY DEFINER helpers
+- 新增 `public.fn_notify(...)` SECURITY DEFINER：寫單一 user 通知
+- 新增 `public.fn_notify_role(...)` SECURITY DEFINER：依角色廣播（leader 限同店、owner/manager 全部）
+- 新增 trigger `trg_improvement_tasks_notify_leaders`：`improvement_tasks` AFTER INSERT → 通知該店 leader 「新的改善任務待處理」，link 到 `/inspection/improvements`
+
+**程式碼變更**：
+
+- `src/lib/notify.ts`（新檔）：`notifyUser` / `notifyRole` TypeScript 包裝 fn_notify / fn_notify_role
+- `src/lib/supabase/types.ts`：補上 `notifications` table 型別 + 4 個新 functions 型別（`current_user_id` / `fn_notify` / `fn_notify_role`）
+
+**已知 TS 限制**：手寫的 `types.ts` 跟 `@supabase/supabase-js` rpc 的 Args 推導對「帶參的 Functions」匹配不上，notify.ts 暫用結構化 cast 繞過。Migration 套到 prod 之後跑 `supabase gen types --linked --schema public > src/lib/supabase/types.ts` 重生 types.ts，cast 就可移除。
+
+**保險點**：git tag `pre-phase-1` → 合 PR 前的 commit。回滾 `git reset --hard pre-phase-1`。
+
+**Production 套用**：本 PR push branch + 開 PR 後，先請 Matt 看 SQL；確認後跑 `supabase db push` 套用 prod（第一次走正規 CLI flow，驗證 PR #26 的 tracking 重建有效）。
+
+**驗證**：`npm run typecheck` clean、`npm run test` 62 個 tests 全綠、`npm run lint` clean。
+
 ### Migration tracking 重建 + 檔名標準化（Phase 1 前置）
 
 **背景**：SCS production 的 `supabase_migrations.schema_migrations` 表完全空白 — 早期 schema 是用 Supabase Dashboard SQL Editor 直接跑出來的，沒走 `supabase db push` 流程，導致 CLI 認為這些 migration 都「未套用」。直接 `db push` 會撞 `table already exists`，擋住 Phase 1 開工。
