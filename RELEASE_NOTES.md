@@ -40,7 +40,7 @@ This release delivers the first internal beta of the Stores Checking System. It 
 
 ## Operational Notes
 
-- Audit logs require migration `20260408_000004_audit_logs.sql`
+- Audit logs require migration `20260408000004_audit_logs.sql`
 - Current seeded owner account is `chahababa@gmail.com`
 - Production requires correct `NEXT_PUBLIC_SITE_URL`
 - Google OAuth callback must match the deployed domain

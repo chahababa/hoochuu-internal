@@ -38,16 +38,16 @@ Fill this before final production rollout.
 ## Supabase Rollout
 
 - Migration applied:
-  - `20260408_000001_mvp_schema.sql`
-  - `20260408_000002_inspections.sql`
-  - `20260408_000003_inspection_photos.sql`
-  - `20260408_000004_audit_logs.sql`
-  - `20260410_000005_localize_seed_content.sql`
-  - `20260410_000006_fix_store_names.sql`
-  - `20260411_000007_expand_focus_items_to_tags.sql`
-  - `20260411_000008_workstations_and_shift_assignment.sql`
-  - `20260412_000009_menu_item_photos.sql`
-  - `20260423_000010_add_menu_observation_note.sql`
+  - `20260408000001_mvp_schema.sql`
+  - `20260408000002_inspections.sql`
+  - `20260408000003_inspection_photos.sql`
+  - `20260408000004_audit_logs.sql`
+  - `20260410000005_localize_seed_content.sql`
+  - `20260410000006_fix_store_names.sql`
+  - `20260411000007_expand_focus_items_to_tags.sql`
+  - `20260411000008_workstations_and_shift_assignment.sql`
+  - `20260412000009_menu_item_photos.sql`
+  - `20260423000010_add_menu_observation_note.sql`
 - Seed applied:
   - `Yes / No`
 - Placeholder owner removed:

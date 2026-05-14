@@ -66,16 +66,16 @@ NEXT_PUBLIC_SITE_URL=http://localhost:3000
    - local: `http://localhost:3000/api/auth/callback`
    - production: `<YOUR_SITE_URL>/api/auth/callback`
 4. Run migrations in order:
-   - `supabase/migrations/20260408_000001_mvp_schema.sql`
-   - `supabase/migrations/20260408_000002_inspections.sql`
-   - `supabase/migrations/20260408_000003_inspection_photos.sql`
-   - `supabase/migrations/20260408_000004_audit_logs.sql`
-   - `supabase/migrations/20260410_000005_localize_seed_content.sql`
-   - `supabase/migrations/20260410_000006_fix_store_names.sql`
-   - `supabase/migrations/20260411_000007_expand_focus_items_to_tags.sql`
-   - `supabase/migrations/20260411_000008_workstations_and_shift_assignment.sql`
-   - `supabase/migrations/20260412_000009_menu_item_photos.sql`
-   - `supabase/migrations/20260423_000010_add_menu_observation_note.sql`
+   - `supabase/migrations/20260408000001_mvp_schema.sql`
+   - `supabase/migrations/20260408000002_inspections.sql`
+   - `supabase/migrations/20260408000003_inspection_photos.sql`
+   - `supabase/migrations/20260408000004_audit_logs.sql`
+   - `supabase/migrations/20260410000005_localize_seed_content.sql`
+   - `supabase/migrations/20260410000006_fix_store_names.sql`
+   - `supabase/migrations/20260411000007_expand_focus_items_to_tags.sql`
+   - `supabase/migrations/20260411000008_workstations_and_shift_assignment.sql`
+   - `supabase/migrations/20260412000009_menu_item_photos.sql`
+   - `supabase/migrations/20260423000010_add_menu_observation_note.sql`
 5. Run `supabase/seed.sql`.
 6. The seeded owner email is currently set to `chahababa@gmail.com`.
 

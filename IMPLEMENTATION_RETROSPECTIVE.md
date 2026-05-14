@@ -128,7 +128,7 @@ Use it when:
 - Fix:
   - translated UI strings in app/components
   - updated `supabase/seed.sql`
-  - added migration `20260410_000005_localize_seed_content.sql` to localize existing data rows
+  - added migration `20260410000005_localize_seed_content.sql` to localize existing data rows
 - Prevention:
   - separate localization into:
     - code-level UI strings
