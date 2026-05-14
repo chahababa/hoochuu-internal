@@ -1,7 +1,7 @@
 import "server-only";
 
 import { createClient } from "@/lib/supabase/server";
-import type { Database } from "@/lib/supabase/types";
+import type { Database, Json } from "@/lib/supabase/types";
 
 export type NotificationModule = "inspection" | "bom" | "system";
 export type NotificationSeverity = "info" | "warning" | "critical";
@@ -14,12 +14,13 @@ export type NotifyParams = {
   title: string;
   body?: string | null;
   link?: string | null;
-  metadata?: Record<string, unknown>;
+  metadata?: Json;
 };
 
-// types.ts 是手寫的；Supabase rpc 的 Args 推導對 hand-typed Functions 帶參的版本不買單，
-// 等本 migration 上 prod 後跑 `supabase gen types` 重生 types.ts 再徹底校準。
-// 改用 PostgrestFilterBuilder 的 rpc 動態呼叫，runtime 行為不變。
+// Supabase rpc 對「帶參的 Functions」型別推導在 ssr client + 本 schema 結構下失效
+// （Schema generic 解析為 never；嘗試過 hand-written types 與 supabase gen types 兩種來源都同樣結果）。
+// 此處用結構化 cast 保留 type-safe 介面、runtime 行為不變。修這個需要研究 ssr/supabase-js
+// 版本相容性，不在 PR 範圍內 — 開 followup issue 處理。
 type RpcClient = {
   rpc: (
     fn: string,
@@ -38,8 +39,8 @@ export async function notifyUser(
     p_type: params.type,
     p_severity: params.severity ?? "info",
     p_title: params.title,
-    p_body: params.body ?? null,
-    p_link: params.link ?? null,
+    p_body: params.body ?? "",
+    p_link: params.link ?? "",
     p_metadata: params.metadata ?? {},
   });
   if (error) throw new Error(error.message);
@@ -54,13 +55,13 @@ export async function notifyRole(
   const supabase = (await createClient()) as unknown as RpcClient;
   const { data, error } = await supabase.rpc("fn_notify_role", {
     p_role: role,
-    p_store_id: storeId,
+    p_store_id: storeId ?? "",
     p_module: params.module,
     p_type: params.type,
     p_severity: params.severity ?? "info",
     p_title: params.title,
-    p_body: params.body ?? null,
-    p_link: params.link ?? null,
+    p_body: params.body ?? "",
+    p_link: params.link ?? "",
     p_metadata: params.metadata ?? {},
   });
   if (error) throw new Error(error.message);

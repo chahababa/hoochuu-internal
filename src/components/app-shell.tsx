@@ -4,6 +4,7 @@ import { PropsWithChildren } from "react";
 import { NavigationGroup, type NavigationLink } from "@/components/app-navigation";
 import { ImpersonationBanner } from "@/components/impersonation-banner";
 import { ImpersonationMenu } from "@/components/impersonation-menu";
+import { NotificationBell } from "@/components/notification-bell";
 import { SignOutButton } from "@/components/sign-out-button";
 import { UserProfile } from "@/lib/auth";
 import { getRoleLabel } from "@/lib/ui-labels";
@@ -70,15 +71,18 @@ export function AppShell({
               </span>
             </Link>
           </div>
-          <div className="flex items-center gap-3 bg-nb-paper border-[2.5px] border-nb-ink shadow-nb-sm px-4 py-2.5">
-            <div className="text-right">
-              <p className="font-bold text-sm text-nb-ink leading-tight">{profile.name || profile.email}</p>
-              <p className="font-nbMono text-[11px] font-bold uppercase tracking-[0.18em] text-nb-ink/65 mt-0.5">
-                {getRoleLabel(profile.role)}
-              </p>
+          <div className="flex items-center gap-3">
+            <NotificationBell userId={profile.id} />
+            <div className="flex items-center gap-3 bg-nb-paper border-[2.5px] border-nb-ink shadow-nb-sm px-4 py-2.5">
+              <div className="text-right">
+                <p className="font-bold text-sm text-nb-ink leading-tight">{profile.name || profile.email}</p>
+                <p className="font-nbMono text-[11px] font-bold uppercase tracking-[0.18em] text-nb-ink/65 mt-0.5">
+                  {getRoleLabel(profile.role)}
+                </p>
+              </div>
+              {isRealOwner && !isImpersonating ? <ImpersonationMenu stores={stores} /> : null}
+              <SignOutButton />
             </div>
-            {isRealOwner && !isImpersonating ? <ImpersonationMenu stores={stores} /> : null}
-            <SignOutButton />
           </div>
         </div>
         <nav className="mx-auto flex max-w-6xl flex-col gap-3 px-4 pb-4">
