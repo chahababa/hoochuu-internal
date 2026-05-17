@@ -5,6 +5,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { fetchClientUserProfile } from "@/lib/bom/client-profile";
 import { Button } from "@/components/bom/ui/button";
 import { Input } from "@/components/bom/ui/input";
 import {
@@ -74,11 +75,8 @@ export default function AuditLogPage() {
   // Auth check
   useEffect(() => {
     (async () => {
-      const supabase = createClient();
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      const role = user?.app_metadata?.role as string | undefined;
+      const profile = await fetchClientUserProfile();
+      const role = profile?.role;
       if (role !== "owner" && role !== "manager") {
         router.replace("/");
         return;

@@ -5,6 +5,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { fetchClientUserProfile } from "@/lib/bom/client-profile";
 import { Button } from "@/components/bom/ui/button";
 import {
   Table,
@@ -75,8 +76,8 @@ export default function BackupPage() {
       const {
         data: { user },
       } = await supabase.auth.getUser();
-      const role = user?.app_metadata?.role as string | undefined;
-      if (role !== "owner") {
+      const profile = await fetchClientUserProfile();
+      if (profile?.role !== "owner") {
         router.replace("/");
         return;
       }

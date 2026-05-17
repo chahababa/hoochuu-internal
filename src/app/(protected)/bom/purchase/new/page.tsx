@@ -4,6 +4,7 @@
 
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { fetchClientUserProfile } from "@/lib/bom/client-profile";
 import { Button } from "@/components/bom/ui/button";
 import { Input } from "@/components/bom/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/bom/ui/card";
@@ -63,8 +64,8 @@ export default function NewPurchasePage() {
       .order("name")
       .then(({ data }) => setIngredients(data ?? []));
 
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      const sid = user?.app_metadata?.store_id;
+    fetchClientUserProfile().then((profile) => {
+      const sid = profile?.store_id;
       if (sid) {
         setStoreId(sid);
       } else {

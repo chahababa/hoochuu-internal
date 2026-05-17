@@ -5,6 +5,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { fetchClientUserProfile } from "@/lib/bom/client-profile";
 import { Button } from "@/components/bom/ui/button";
 import { Input } from "@/components/bom/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/bom/ui/card";
@@ -97,8 +98,8 @@ export default function DishEditPage() {
   const load = useCallback(async () => {
     const supabase = createClient();
 
-    const { data: { user } } = await supabase.auth.getUser();
-    setRole((user?.app_metadata?.role as string | undefined) ?? null);
+    const profile = await fetchClientUserProfile();
+    setRole(profile?.role ?? null);
 
     const { data: d } = await supabase.schema("bom").from("dishes")
       .select("id, name, category, service_mode, price, cost_baseline_id, current_version_id")

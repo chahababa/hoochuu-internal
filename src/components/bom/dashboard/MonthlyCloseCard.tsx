@@ -4,6 +4,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { fetchClientUserProfile } from "@/lib/bom/client-profile";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/bom/ui/card";
 import { Button } from "@/components/bom/ui/button";
 import { Badge } from "@/components/bom/ui/badge";
@@ -25,8 +26,8 @@ export function MonthlyCloseCard() {
   async function load() {
     setLoading(true);
     const supabase = createClient();
-    const [{ data: { user } }, { data: lockRow }] = await Promise.all([
-      supabase.auth.getUser(),
+    const [profile, { data: lockRow }] = await Promise.all([
+      fetchClientUserProfile(),
       supabase
         .schema("bom")
         .from("monthly_locks")
@@ -35,7 +36,7 @@ export function MonthlyCloseCard() {
         .eq("month", target.month)
         .maybeSingle(),
     ]);
-    setRole((user?.app_metadata?.role as string | undefined) ?? null);
+    setRole(profile?.role ?? null);
     setLock((lockRow as MonthlyLockRow | null) ?? null);
     setLoading(false);
   }
