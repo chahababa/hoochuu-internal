@@ -9,6 +9,7 @@
 - [`docs/BOM_PHASE_5_READINESS.md`](BOM_PHASE_5_READINESS.md)：Phase 5 readiness / 風險總覽。
 - [`docs/BOM_PHASE_5_SCAFFOLD.md`](BOM_PHASE_5_SCAFFOLD.md)：code-only scaffold 與 cron draft registry。
 - [`docs/BOM_PHASE_5_PRODUCTION_PREFLIGHT.md`](BOM_PHASE_5_PRODUCTION_PREFLIGHT.md)：production preflight checklist。
+- [`docs/BOM_PHASE_5_STAGE_B_REHEARSAL.md`](BOM_PHASE_5_STAGE_B_REHEARSAL.md)：Stage B non-production / mock rehearsal 指南。
 - [`docs/sql/bom_phase_5_cron_migration_draft.sql`](sql/bom_phase_5_cron_migration_draft.sql)：review-only cron migration draft；不在 `supabase/migrations`。
 
 ## 0. 本文件安全邊界
@@ -43,7 +44,16 @@
 
 ### Stage B — Non-production rehearsal（需 Matt 指定環境）
 
-目的：在 staging / preview / mock 環境驗證 Edge Function、env fallback、cron SQL 與寄信 allowlist 行為。
+目的：在 staging / preview / mock 環境驗證 Edge Function、env fallback、cron SQL 與寄信 allowlist 行為，並把 Stage A gaps 轉成可驗證的 no-op rehearsal。
+
+Stage B 交付物：
+
+- [`docs/BOM_PHASE_5_STAGE_B_REHEARSAL.md`](BOM_PHASE_5_STAGE_B_REHEARSAL.md) 填寫 rehearsal 結果。
+- `npm run bom:stage-b:rehearsal` 的 local/mock names-only output。
+- pg_cron / pg_net / `cron.job` 的 non-production read-only SQL 結果或 blocker。
+- Edge Functions names-only status；若尚未部署，只記錄 missing，不 deploy。
+- Zeabur CLI / dashboard read-only readiness；若未登入，只記錄 login blocker。
+- Resend dashboard manual names-only confirmation；不寄信、不 reveal key。
 
 禁止：不能把 rehearsal 當 production approval；不能使用 production secrets 值寫入 repo、PR 或 log。
 

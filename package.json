@@ -9,6 +9,7 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit -p tsconfig.typecheck.json",
     "test": "vitest run",
+    "bom:stage-b:rehearsal": "node scripts/bom-phase-5-stage-b-rehearsal.mjs",
     "test:e2e": "playwright test",
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:auth:owner": "node scripts/create-playwright-storage-state.mjs owner",
