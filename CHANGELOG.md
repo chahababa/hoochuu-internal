@@ -1,6 +1,68 @@
 # Changelog
 
-## 2026-05-14 Latest
+## v1.0.0 — 2026-05-18
+
+**hoochuu-internal 合併計畫完成里程碑**。SCS 巡檢系統與 BOM 成本管理系統整合為單一 Next.js + Supabase 平台。整套上 prod、系統整合測試通過。
+
+### 功能
+- **巡檢模組**：新增 / 編輯 / 鎖定 / 刪除巡店、評分、照片、改善任務、月度報表、稽核
+- **BOM 成本管理模組**：食材／品項、進貨紀錄、半成品／餐點 BOM、成本基準、成本快照、月結鎖定、警報、批次匯入
+- **跨模組**：統一通知中心（Bell UI + realtime）、AppShell 模組切換、Email/Password + Google OAuth 雙軌登入
+- **角色權限**：`owner` / `manager` / `leader` + `can_access_bom` / `can_access_inspection` 兩個 module flag
+
+### 資料庫
+- **21 支 migration** 全套用 prod（10 SCS 原有 + 6 SCS 中期 + 5 BOM 合併期）
+- **Schema**：`public.*`（SCS）+ `bom.*`（BOM 19 tables / 5 enums / 25 functions / 20 triggers / 42 RLS policies）
+- **Storage buckets**：`inspection-photos`（既有）+ `bom-imports`（10MB）+ `bom-backups-staging`（500MB service_role only）
+- **Migration tracking**：2026-05-14 重建（PR #26），檔名統一為 14-digit 標準格式
+
+### 整合測試（Layer 1/2/3）— 100% 通過
+- Schema audit：19 tables / 5 enums / 25 fn / 20 trig / 42 policies / 4 storage policies 全存在
+- Browser smoke：11 個 BOM routes owner 訪問全通過、Console 0 error、既有巡店無 regression
+- RLS sanity：5 helpers / fn_notify SECURITY DEFINER / 41/42 policies 含 can_access_bom 檢查
+- 詳見 [`tests/integration/README.md`](tests/integration/README.md)
+
+### 抓到並修好的 2 個 Bug
+- **Bug #1**（PR #39）：BOM port code 讀 `user.app_metadata.role`，但 SCS 不同步 role 到 JWT → 改用直接查 `public.users`
+- **Bug #2**（PR #40）：直接查也撞 PG 42501（`public.users` 沒給 authenticated table-level GRANT）→ 改走 server action via admin client
+
+### 部署
+- GitHub：<https://github.com/chahababa/hoochuu-internal>
+- Production URL：<https://stores-checking-system.zeabur.app>
+- Zeabur GitHub App auto-deploy on `main` push
+- Supabase project ref：`owogsszmolouoqsgmwik`
+
+### 已知限制
+- **Phase 5 BOM Infra 未啟用**：pg_cron 排程、pg_net Edge Function dispatch、Vault secrets 都還是 stub
+  - 影響：自動備份、月結自動鎖、即時 alert email 不會發
+  - 不影響：手動 backup、手動月結、warning log 都能用
+- **視覺整合**：BOM `@base-ui/react` shadcn primitives 用 `bg-background` 等 CSS variables，跟 Neo Brutalism 不對齊 — 視覺風格不一致，功能正常
+- **通知頁面 cutover**：`/notifications` 頁仍用舊 rule-based 聚合，Bell UI 才讀新 `public.notifications` 表（待 PR-C）
+- **Manager / leader 使用 BOM**：預設 `can_access_bom=false`，需另案 grant
+
+### 13 個 phase PR 概覽
+| PR | 內容 | Commit |
+|---|---|---|
+| #25 | post-phase-0 housekeeping | `8c8cc13` |
+| #26 | migration tracking 重建 + 檔名標準化 | `6642104` |
+| #28 | 過時 docs 段落清理 | `44d791b` |
+| #29 | Phase 1-A 通知中心 DB 骨幹 | `69c31d9` |
+| #30 | Phase 1-B Bell UI + realtime | `43ed8db` |
+| #31 | Phase 2-A users 模組權限欄位 | `5a22f6b` |
+| #32 | Phase 2-B BOM schema port（1873 行） | `9676366` |
+| #33 | Phase 2-C BOM storage buckets | `423ec71` |
+| #34 | Phase 3+4a regen types | `59c7bae` |
+| #35 | Phase 3+4b port BOM lib | `e84b1a1` |
+| #36 | Phase 3+4c port BOM components | `759b34c` |
+| #37 | Phase 3+4d port BOM routes | `5f6b79b` |
+| #38 | Phase 3+4e AppShell BOM nav + owner grant | `dbacf1d` |
+| #39 | Bug #1 fix（client auth pattern） | `389519d` |
+| #40 | Bug #2 fix（server action via admin client） | `aa28e60` |
+| #41 | 系統整合測試 findings report | `2b9c346` |
+
+---
+
+## 2026-05-14
 
 ### Phase 3+4 PR-E：AppShell BOM 模組導航 + grant `can_access_bom=true` 給 owners
 
