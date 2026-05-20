@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
 import { describe, expect, it } from "vitest";
 
 import {
@@ -57,5 +60,21 @@ describe("BOM Phase 5 infra scaffold", () => {
     expect(sql).toContain("-- SELECT cron.schedule('bom_backup_daily_r2'");
     expect(sql).not.toMatch(/^SELECT cron\.schedule/m);
     expect(sql).toContain("Do not run this SQL in production until Matt approves");
+  });
+
+  it("keeps the cron migration draft review-only, idempotent, and rollbackable", () => {
+    const sql = readFileSync(join(process.cwd(), "docs/sql/bom_phase_5_cron_migration_draft.sql"), "utf8");
+
+    for (const job of BOM_INFRA_JOBS) {
+      expect(sql).toContain(`WHERE jobname = '${job.name}'`);
+      expect(sql).toContain(`'${job.name}'`);
+      expect(sql).toContain(`'${job.scheduleUtc}'`);
+    }
+
+    expect(sql).toContain("NOT in supabase/migrations");
+    expect(sql).toContain("WHERE jobname LIKE 'bom_%'");
+    expect(sql).toContain("SELECT cron.unschedule(jobid)");
+    expect(sql).not.toMatch(/^\s*SELECT cron\.(schedule|unschedule)/m);
+    expect(sql).not.toMatch(/SUPABASE_SERVICE_ROLE_KEY\s*=|RESEND_API_KEY\s*=/);
   });
 });

@@ -28,6 +28,10 @@
 - `docs/sql/bom_phase_5_cron_preview.sql`
   - 只供 review 的 commented SQL preview。
   - 未經 Matt approval 前不得取消註解或在 production 執行。
+- `docs/sql/bom_phase_5_cron_migration_draft.sql`
+  - review-only idempotent cron migration draft，不放進 `supabase/migrations`，避免 merge 後被 `supabase db push` 誤套用。
+  - 每個 `bom_*` job 先按固定 job name `cron.unschedule`，再 `cron.schedule`，重跑會收斂成一個 active job。
+  - 內含 namespace rollback：`WHERE jobname LIKE 'bom_%'` 的 unschedule / verification 草稿。
 
 ## Draft job registry
 
