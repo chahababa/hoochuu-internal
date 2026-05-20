@@ -148,7 +148,7 @@ Rollback：
 
 1. `docs/phase-5-readiness`：本文件與 handoff 更新（無 runtime 風險）。
 2. `feat/bom-infra-scaffold`：code-only Edge Function / SQL scaffold + tests，不 deploy、不 apply。scaffold 合約見 [`docs/BOM_PHASE_5_SCAFFOLD.md`](BOM_PHASE_5_SCAFFOLD.md)，cron preview 見 [`docs/sql/bom_phase_5_cron_preview.sql`](sql/bom_phase_5_cron_preview.sql)。
-3. `feat/bom-cron-migration`：idempotent migration PR，只描述如何套用，不在 PR 中操作 production。
+3. `feat/bom-cron-migration`：idempotent migration review package；先放在 `docs/sql/bom_phase_5_cron_migration_draft.sql` 而非 `supabase/migrations`，避免 merge 後誤套用 production cron。Matt approval 後再轉成可執行 migration / ops runbook。
 4. `ops/enable-bom-infra`：Matt approval 後才進行實際啟用，並記錄每一步驗證與 rollback。
 
 ## PR body 必填聲明
