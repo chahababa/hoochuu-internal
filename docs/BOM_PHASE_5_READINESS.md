@@ -147,7 +147,7 @@ Rollback：
 ## 建議 Phase 5 PR 切法
 
 1. `docs/phase-5-readiness`：本文件與 handoff 更新（無 runtime 風險）。
-2. `feat/bom-infra-scaffold`：code-only Edge Function / SQL scaffold + tests，不 deploy、不 apply。
+2. `feat/bom-infra-scaffold`：code-only Edge Function / SQL scaffold + tests，不 deploy、不 apply。scaffold 合約見 [`docs/BOM_PHASE_5_SCAFFOLD.md`](BOM_PHASE_5_SCAFFOLD.md)，cron preview 見 [`docs/sql/bom_phase_5_cron_preview.sql`](sql/bom_phase_5_cron_preview.sql)。
 3. `feat/bom-cron-migration`：idempotent migration PR，只描述如何套用，不在 PR 中操作 production。
 4. `ops/enable-bom-infra`：Matt approval 後才進行實際啟用，並記錄每一步驗證與 rollback。
 
