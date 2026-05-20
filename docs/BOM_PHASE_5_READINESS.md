@@ -151,6 +151,15 @@ Rollback：
 3. `feat/bom-cron-migration`：idempotent migration review package；先放在 `docs/sql/bom_phase_5_cron_migration_draft.sql` 而非 `supabase/migrations`，避免 merge 後誤套用 production cron。Matt approval 後再轉成可執行 migration / ops runbook。
 4. `ops/enable-bom-infra`：Matt approval 後才進行實際啟用，並記錄每一步驗證與 rollback。
 
+## Production enablement runbook / preflight
+
+Production 啟用前請先完成：
+
+- [`docs/BOM_PHASE_5_PRODUCTION_ENABLEMENT_RUNBOOK.md`](BOM_PHASE_5_PRODUCTION_ENABLEMENT_RUNBOOK.md)：production enablement 分段、Go / No-Go gate、停止條件與 rollback 優先順序。
+- [`docs/BOM_PHASE_5_PRODUCTION_PREFLIGHT.md`](BOM_PHASE_5_PRODUCTION_PREFLIGHT.md)：read-only / names-only preflight checklist。
+
+這兩份文件仍不代表已取得 production approval；任何 DB write、pg_cron schedule、Vault secret write、Edge Function deploy、Zeabur env change 或 Resend send 都要 Matt 另行明確確認。
+
 ## PR body 必填聲明
 
 Phase 5 相關 PR 請明確寫：
